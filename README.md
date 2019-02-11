@@ -39,4 +39,5 @@ target_link_libraries(MyCoolRobot libroboutils)
 
 ## Contributors
 Ing. Frantisek Burian Ph.D.
+
 Matous Hybl [hyblmatous@gmail.com](mailto:hyblmatous@gmail.com)
