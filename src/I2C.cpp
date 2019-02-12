@@ -3,6 +3,7 @@
 //
 
 #include "roboutils/I2C.h"
+#include "roboutils/ci2c.h"
 
 #if defined(__linux__)
 
