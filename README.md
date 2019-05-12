@@ -4,6 +4,7 @@ C++ classes used for speeding up development of robots, suitable for Raspberry P
 
 Features classes for:
 * UDP
+* TCP
 * Thread safe variable access
 * Thread safe I2C (Linux only)
 * Measuring time
