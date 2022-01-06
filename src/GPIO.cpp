@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include "roboutils/GPIO.h"
-#include "roboutils/mcp23017.h"
+#include "roboutils/chips/mcp23017.h"
 
 #if defined(__linux__)
 

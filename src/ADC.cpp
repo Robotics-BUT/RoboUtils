@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include "roboutils/ADC.h"
-#include "roboutils/ad799x.h"
+#include "roboutils/chips/ad799x.h"
 
 #if defined(__linux__)
 namespace RoboUtils {
