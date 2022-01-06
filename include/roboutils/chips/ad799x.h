@@ -142,34 +142,42 @@ namespace RoboUtils::Chips::Ad799X {
 
         static const uint16_t ALERT       =  1 << 15;
 
-        static const uint16_t CHAN        =  ToCHAN(7 );
-        static const uint16_t CHAN_0      =  ToCHAN(0 );
-        static const uint16_t CHAN_1      =  ToCHAN(1 );
-        static const uint16_t CHAN_2      =  ToCHAN(2 );
-        static const uint16_t CHAN_3      =  ToCHAN(3 );
-        static const uint16_t CHAN_4      =  ToCHAN(4 );
-        static const uint16_t CHAN_5      =  ToCHAN(5 );
-        static const uint16_t CHAN_6      =  ToCHAN(6 );
-        static const uint16_t CHAN_7      =  ToCHAN(7 );
+        static constexpr uint16_t CHAN        =  ToCHAN(7 );
+        static constexpr uint16_t CHAN_0      =  ToCHAN(0 );
+        static constexpr uint16_t CHAN_1      =  ToCHAN(1 );
+        static constexpr uint16_t CHAN_2      =  ToCHAN(2 );
+        static constexpr uint16_t CHAN_3      =  ToCHAN(3 );
+        static constexpr uint16_t CHAN_4      =  ToCHAN(4 );
+        static constexpr uint16_t CHAN_5      =  ToCHAN(5 );
+        static constexpr uint16_t CHAN_6      =  ToCHAN(6 );
+        static constexpr uint16_t CHAN_7      =  ToCHAN(7 );
 
-        static const uint16_t VALUE       =  ToVALUE(0x0FFF);
+        static constexpr uint16_t VALUE       =  ToVALUE(0x0FFF);
+    }
+
+    namespace ALERT {
+
+        static constexpr uint8_t ToL(int ch) {
+            return 1 << (ch * 2);
+        }
+
+        static constexpr uint8_t ToH(int ch) {
+            return 2 << (ch * 2);
+        }
+
+        static constexpr uint8_t L0        =  ToL(0 );
+        static constexpr uint8_t H0        =  ToH(0 );
+        static constexpr uint8_t L1        =  ToL(1 );
+        static constexpr uint8_t H1        =  ToH(1 );
+        static constexpr uint8_t L2        =  ToL(2 );
+        static constexpr uint8_t H2        =  ToH(2 );
+        static constexpr uint8_t L3        =  ToL(3 );
+        static constexpr uint8_t H3        =  ToH(3 );
     }
 
 
+    namespace CONFIG {
 
-// ---- AD799X_ALERT -----------------------------------------------------------
-#define AD799X_ALERT_L(ch)                 (1 << ((ch) * 2))
-#define AD799X_ALERT_H(ch)                 (2 << ((ch) * 2))
-#define AD799X_ALERT_L0                    (1 << 0)
-#define AD799X_ALERT_H0                    (1 << 1)
-#define AD799X_ALERT_L1                    (1 << 2)
-#define AD799X_ALERT_H1                    (1 << 3)
-#define AD799X_ALERT_L2                    (1 << 4)
-#define AD799X_ALERT_H2                    (1 << 5)
-#define AD799X_ALERT_L3                    (1 << 6)
-#define AD799X_ALERT_H3                    (1 << 7)
-
-// ---- AD799X_CONFIG ----------------------------------------------------------
 // generic for group A, C, D*
 #define AD799X_CONFIG_CH(ch)               (1 << ((ch)+4))
 #define AD799X_CONFIG_CH_ALL               (0xFF << 4)
@@ -193,29 +201,60 @@ namespace RoboUtils::Chips::Ad799X {
 // group D only
 #define AD7992_CONFIG_SINGLE               (1 << 6)
 // bits 0 - 5 in group D are generic (X)
+    }
 
-// ---- AD799X_CYCLE -----------------------------------------------------------
-// T is 2us
-#define AD799X_CYCLE_SAMPDELAY             (1 << 7)
-#define AD799X_CYCLE_TRIALDELAY            (1 << 6)
-#define AD799X_CYCLE_CYC                   (7 << 0)
-#define AD799X_CYCLE_CYC_NONE              (0 << 0)
-#define AD799X_CYCLE_CYC_32T               (1 << 0)
-#define AD799X_CYCLE_CYC_64T               (2 << 0)
-#define AD799X_CYCLE_CYC_128T              (3 << 0)
-#define AD799X_CYCLE_CYC_256T              (4 << 0)
-#define AD799X_CYCLE_CYC_512T              (5 << 0)
-#define AD799X_CYCLE_CYC_1024T             (6 << 0)
-#define AD799X_CYCLE_CYC_2048T             (7 << 0)
 
-// ---- AD799X_DATAL -----------------------------------------------------------
-#define AD799X_DATAL_VALUE                 (0x0FFF << 0)
+    namespace CYCLE {
 
-// ---- AD799X_DATAH -----------------------------------------------------------
-#define AD799X_DATAH_VALUE                 (0x0FFF << 0)
+        static const uint8_t SAMPDELAY    =  1 << 7;
+        static const uint8_t TRIALDELAY   =  1 << 6;
 
-// ---- AD799X_HYST ------------------------------------------------------------
-#define AD799X_HYST_VALUE                  (0x0FFF << 0)
+        // T is 2us
+        static constexpr int FromCYC(const uint8_t ch) {
+            if (!(ch & 7))
+                return 0;
+
+            return 32 << (ch & 7);
+        }
+
+        static const uint8_t CYC      =         7 << 0;
+        static const uint8_t CYC_0T   =             0 << 0;
+        static const uint8_t CYC_32T  =             1 << 0;
+        static const uint8_t CYC_64T  =             2 << 0;
+        static const uint8_t CYC_128T =             3 << 0;
+        static const uint8_t CYC_256T =             4 << 0;
+        static const uint8_t CYC_512T =             5 << 0;
+        static const uint8_t CYC_1024T =            6 << 0;
+        static const uint8_t CYC_2048T =            7 << 0;
+    }
+
+
+    namespace DATA {
+
+        static constexpr uint16_t To(int ch) {
+            return ch & 0xFFF;
+        }
+
+        static constexpr int From(uint16_t reg) {
+            return reg & 0xFFF;
+        }
+
+        static constexpr uint16_t MASK       =  To(0x0FFF);
+    }
+
+    namespace HYST {
+
+        static constexpr uint16_t To(int ch) {
+            return ch & 0xFFF;
+        }
+
+        static constexpr int From(uint16_t reg) {
+            return reg & 0xFFF;
+        }
+
+        static constexpr uint16_t MASK       =  To(0x0FFF);
+    }
+
 
 
 };
