@@ -19,6 +19,12 @@ namespace RoboUtils {
 // C++ wrapper around MCP3017 library
     class GPIO {
     public:
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Constructor of interface
+        ///
+        /// \param i2c the bus to communicate over
+        /// \param chipIndex the index of the chip on bus
         explicit GPIO(I2C *i2c, int chipIndex = 0);
 
         void setDirection(uint16_t pin, bool input);
@@ -29,26 +35,61 @@ namespace RoboUtils {
 
         bool read(uint16_t pin);
 
-        // new API
-
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set selected pins to input mode
+        ///
+        /// \param pins
         void input(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set specified pins to input mode with active pullup
+        ///
+        /// \param pins
         void input_pullup(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set specified pins to output mode
+        ///
+        /// \param pins
         void output(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set specified pins to specified level
+        ///
+        /// \param pins
+        /// \param value
         void set(uint16_t pins, bool value) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set specified pins to low level (0V)
+        ///
+        /// \param pins
         void low(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set specified pins to high level (3.3V)
+        ///
+        /// \param pins
         void high(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Toggle specified pins
+        ///
+        /// \param pins
         void toggle(uint16_t pins) const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Get actual pin value
+        ///
+        /// \param pins
+        /// \return
         bool get(uint16_t pins) const;
 
     private:
+        /// the bus
         I2C *i2c = nullptr;
+
+        /// original chip address
         int chipAddress;
     };
 
