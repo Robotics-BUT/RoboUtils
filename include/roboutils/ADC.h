@@ -12,12 +12,14 @@
 namespace RoboUtils {
     class ADC {
     public:
-        ADC(I2C *i2c);
+        explicit ADC(I2C *i2c);
 
         uint16_t readChannel(uint8_t channel);
 
     private:
         I2C *i2c;
+
+        int chipAddress;
     };
 };
 

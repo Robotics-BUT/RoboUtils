@@ -21,10 +21,9 @@
 
 #if defined(__linux__)
 
-namespace RoboUtils {
-#ifdef __cplusplus
-    extern "C" {
-#endif
+namespace RoboUtils::Chips::Ad799X {
+
+
 
 
 // versions
@@ -65,50 +64,98 @@ namespace RoboUtils {
  */
 // Address pointer
 
+    namespace RESULT {
+        static constexpr uint8_t Reg(const int channel) {
+            return static_cast<uint8_t>(0x80 | (channel << 4));
+        }
+    }
 
-// only read  
-#define AD799X_RESULT         (0x00)                        // 16bit
-// start conversion and read result on channel
-#define AD799X_RESULT_CH(ch)  (0x80 | (ch) << 4)            // 16bit
-// start sequential conversion and read first result
-#define AD799X_RESULT_SEQ     (0x70)                        // 16bit
+    namespace DATA {
+        static constexpr uint8_t Reg(const int channel)
+        {
+            return static_cast<uint8_t>(0x04 + channel * 3);
+        }
+    }
 
-#define AD799X_ALERT          0x01                          // 8 bit
-#define AD799X_CONFIG         0x02                          // 8 bit (C: 16 bit)
-#define AD799X_CYCLE          0x03                          // 8 bit
-#define AD799X_DATAL(ch)      (0x04 + (ch)*3)               // 16 bit
-#define AD799X_DATAH(ch)      (0x05 + (ch)*3)               // 16 bit
-#define AD799X_HYST(ch)       (0x06 + (ch)*3)               // 16 bit
-#define AD799X_DATAL0         0x04
-#define AD799X_DATAH0         0x05
-#define AD799X_HYST0          0x06
-#define AD799X_DATAL1         0x07
-#define AD799X_DATAH1         0x08
-#define AD799X_HYST1          0x09
-#define AD799X_DATAL2         0x0A
-#define AD799X_DATAH2         0x0B
-#define AD799X_HYST2          0x0C
-#define AD799X_DATAL3         0x0D
-#define AD799X_DATAH3         0x0E
-#define AD799X_HYST3          0x0F
+    namespace HYST {
+        static constexpr uint8_t Reg(const int channel)
+        {
+            return static_cast<uint8_t>(0x06 + channel * 3);
+        }
+    }
+
+    enum class Reg : uint8_t {
+        RESULT       =  0x00,                          // 16bit        // only read
+        ALERT        =  0x01,                          // 8 bit
+        CONFIG       =  0x02,                          // 8 bit (C: 16 bit)
+        CYCLE        =  0x03,                          // 8 bit
+        DATAL0       =  DATA::Reg(0) + 0,
+        DATAH0       =  DATA::Reg(0) + 1,
+        HYST0        =  HYST::Reg(0),
+        DATAL1       =  DATA::Reg(1) + 0,
+        DATAH1       =  DATA::Reg(1) + 1,
+        HYST1        =  HYST::Reg(1),
+        DATAL2       =  DATA::Reg(2) + 0,
+        DATAH2       =  DATA::Reg(2) + 1,
+        HYST2        =  HYST::Reg(2),
+        DATAL3       =  DATA::Reg(3) + 0,
+        DATAH3       =  DATA::Reg(3) + 1,
+        HYST3        =  HYST::Reg(3),
+
+        // start sequential conversion and read first result
+        RESULT_SEQ   =  0x70,                        // 16bit
+
+        // start conversion and read result on channel
+        RESULT0      = RESULT::Reg(0),            // 16bit
+        RESULT1      = RESULT::Reg(1),            // 16bit
+        RESULT2      = RESULT::Reg(2),            // 16bit
+        RESULT3      = RESULT::Reg(3),            // 16bit
+    };
+
+    static inline uint8_t operator+(const Reg reg)
+    {
+        return static_cast<uint8_t>(reg);
+    }
+
+
 
 /*******************************************************************************
  * BITS DESCRIPTION
  */
+    namespace RESULT {
 
-// ---- AD799X_RESULT ----------------------------------------------------------
-#define AD799X_RESULT_ALERT                (1 << 15)
-#define AD799X_RESULT_CHAN                 (7 << 12)
-#define AD799X_RESULT_CHAN_CH(ch)          ((ch) << 12)
-#define AD799X_RESULT_CHAN_CH0             (0 << 12)
-#define AD799X_RESULT_CHAN_CH1             (1 << 12)
-#define AD799X_RESULT_CHAN_CH2             (2 << 12)
-#define AD799X_RESULT_CHAN_CH3             (3 << 12)
-#define AD799X_RESULT_CHAN_CH4             (4 << 12)
-#define AD799X_RESULT_CHAN_CH5             (5 << 12)
-#define AD799X_RESULT_CHAN_CH6             (6 << 12)
-#define AD799X_RESULT_CHAN_CH7             (7 << 12)
-#define AD799X_RESULT_VALUE                (0x0FFF << 0)
+        static constexpr uint16_t ToCHAN(int ch) {
+            return ch << 12;
+        }
+
+        static constexpr int FromCHAN(uint16_t reg) {
+            return (reg >> 12) & 7;
+        }
+
+        static constexpr uint16_t ToVALUE(int ch) {
+            return ch & 0xFFF;
+        }
+
+        static constexpr int FromVALUE(uint16_t reg) {
+            return reg & 0xFFF;
+        }
+
+        static const uint16_t ALERT       =  1 << 15;
+
+        static const uint16_t CHAN        =  ToCHAN(7 );
+        static const uint16_t CHAN_0      =  ToCHAN(0 );
+        static const uint16_t CHAN_1      =  ToCHAN(1 );
+        static const uint16_t CHAN_2      =  ToCHAN(2 );
+        static const uint16_t CHAN_3      =  ToCHAN(3 );
+        static const uint16_t CHAN_4      =  ToCHAN(4 );
+        static const uint16_t CHAN_5      =  ToCHAN(5 );
+        static const uint16_t CHAN_6      =  ToCHAN(6 );
+        static const uint16_t CHAN_7      =  ToCHAN(7 );
+
+        static const uint16_t VALUE       =  ToVALUE(0x0FFF);
+    }
+
+
 
 // ---- AD799X_ALERT -----------------------------------------------------------
 #define AD799X_ALERT_L(ch)                 (1 << ((ch) * 2))
@@ -171,9 +218,6 @@ namespace RoboUtils {
 #define AD799X_HYST_VALUE                  (0x0FFF << 0)
 
 
-#ifdef __cplusplus
-    }
-#endif
 };
 
 #endif
