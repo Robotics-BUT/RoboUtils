@@ -17,6 +17,25 @@ namespace RoboUtils {
 #define PULLUP_OFF false
 
 // C++ wrapper around MCP3017 library
+    ///-------------------------------------------------------------------------------------------------------------
+    /// \brief The GPIO multi-threaded library
+    ///
+    /// \code
+    ///  I2C bus{"/dev/i2c-1"};
+    ///  GPIO gpio{ &bus };
+    ///
+    ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set PA1...PA3 to output
+    ///  gpio.input_pullup(Pin::PA7 | Pin::PA6);             // set pins PA7 and PA6 to input
+    ///
+    ///  while(gpio.get(Pin::PA7)) {                         // loo until button on PA7 press
+    ///      gpio.high(Pin::PA1);                            // set PA1 to high level (LED off)
+    ///      delay(500);
+    ///      gpio.low(Pin::PA1);                             // set PA1 to low level (LED on)
+    ///      delay(500);
+    ///      gpio.toggle(Pin::PA2);                          // change value of PA2 (blink)
+    ///      gpio.set(Pin::PA3, gpio.get(Pin::PA6));         // copy value of PA6 to PA3
+    ///  }
+    /// \endcode
     class GPIO {
     public:
 
