@@ -19,7 +19,7 @@ namespace RoboUtils {
 // C++ wrapper around MCP3017 library
     class GPIO {
     public:
-        explicit GPIO(I2C *i2c, int aChipAddress = 0);
+        explicit GPIO(I2C *i2c, int chipIndex = 0);
 
         void setDirection(uint16_t pin, bool input);
 
@@ -51,6 +51,25 @@ namespace RoboUtils {
         I2C *i2c = nullptr;
         int chipAddress;
     };
+
+    namespace Pin {
+        static const uint16_t PB7 = (1 << 15);
+        static const uint16_t PB6 = (1 << 14);
+        static const uint16_t PB5 = (1 << 13);
+        static const uint16_t PB4 = (1 << 12);
+        static const uint16_t PB3 = (1 << 11);
+        static const uint16_t PB2 = (1 << 10);
+        static const uint16_t PB1 = (1 << 9);
+        static const uint16_t PB0 = (1 << 8);
+        static const uint16_t PA7 = (1 << 7);
+        static const uint16_t PA6 = (1 << 6);
+        static const uint16_t PA5 = (1 << 5);
+        static const uint16_t PA4 = (1 << 4);
+        static const uint16_t PA3 = (1 << 3);
+        static const uint16_t PA2 = (1 << 2);
+        static const uint16_t PA1 = (1 << 1);
+        static const uint16_t PA0 = (1 << 0);
+    }
 };
 
 #endif
