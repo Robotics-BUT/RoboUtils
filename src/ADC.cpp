@@ -7,29 +7,28 @@
 #include "roboutils/chips/ad799x.h"
 
 #if defined(__linux__)
-namespace RoboUtils {
+using namespace RoboUtils;
+using namespace RoboUtils::Chips::Ad799X;
 
-    using namespace Chips::Ad799X;
+ADC::ADC(I2C *i2c) {
+    this->i2c = i2c;
+    chipAddress = ADDR_AD799X_0_L;
+}
 
-    ADC::ADC(I2C *i2c) {
-        this->i2c = i2c;
-        chipAddress = ADDR_AD799X_0_L;
-    }
+uint16_t ADC::readChannel(uint8_t channel) {
 
-    uint16_t ADC::readChannel(uint8_t channel) {
+    uint16_t channelAndValue;
+    if (!i2c->readBe(chipAddress, RESULT::Reg(channel), &channelAndValue))
+        throw "Can't read from ADC";
 
-        uint16_t channelAndValue;
-        if (!i2c->readBe(chipAddress, RESULT::Reg(channel), &channelAndValue))
-            throw "Can't read from ADC";
+    uint16_t readChannel = RESULT::FromCHAN(channelAndValue);
 
-        uint16_t readChannel = RESULT::FromCHAN(channelAndValue);
+    // FIXME test if actually true
+    if (readChannel != channel)
+        throw "ADC: received result channel is not equal to requested channel";
 
-        // FIXME test if actually true
-        if (readChannel != channel)
-            throw "ADC: received result channel is not equal to requested channel";
+    return RESULT::FromVALUE(channelAndValue );
+}
 
-        return RESULT::FromVALUE(channelAndValue );
-    }
-};
 
 #endif
