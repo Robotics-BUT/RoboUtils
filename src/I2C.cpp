@@ -78,49 +78,49 @@ void I2C::update16bitLEValue(uint8_t chipAddress, uint8_t registerAddress, uint1
 template <typename T>
 bool I2C::writeLe(const int chipAddress, const int registerAddress, const T value) const
 {
-    return writeLe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T));
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T), 1, true);
 }
 
 template <typename T>
 bool I2C::writeBe(const int chipAddress, const int registerAddress, const T value) const
 {
-    return writeBe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T));
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T), 1, false);
 }
 
 template <typename T>
 bool I2C::writeLe(const int chipAddress, const int registerAddress, const T* array, const int count) const
 {
-    return writeLe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count);
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count, true);
 }
 
 template <typename T>
 bool I2C::writeBe(const int chipAddress, const int registerAddress, const T* array, const int count) const
 {
-    return writeBe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count);
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count, false);
 }
 
 template <typename T>
 bool I2C::readLe(const int chipAddress, const int registerAddress, T* value) const
 {
-    return readLe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T));
+    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T), 1, true);
 }
 
 template <typename T>
 bool I2C::readBe(const int chipAddress, const int registerAddress, T* value) const
 {
-    return readBe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T));
+    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T), 1, false);
 }
 
 template <typename T>
 bool I2C::readLe(const int chipAddress, const int registerAddress, T* array, const int count) const
 {
-    return readLe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count);
+    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count, true);
 }
 
 template <typename T>
 bool I2C::readBe(const int chipAddress, const int registerAddress, T* array, const int count) const
 {
-    return readBe_( chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count);
+    return read_( chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count, false);
 }
 
 //======================================================================================================================
@@ -173,58 +173,52 @@ bool I2C::transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) 
     return true;
 }
 
-bool I2C::writeBe_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int count ) const
-{
-    uint8_t buff[1 + count * typeSize];
-    buff[0] = registerAddress;
-
-    for (int i = 0 ; i < count ; ++i) {
-        for (int j = 0; j < typeSize; ++j)
-            buff[i * typeSize + typeSize - j] = data[i * typeSize + j];
-    }
-
-    return transact_(chipAddress, buff, 1 + count * typeSize, nullptr, 0);
-}
-
-bool I2C::writeLe_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size ) const
+bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size, bool litleEndian  ) const
 {
     uint8_t buff[1 + size * typeSize];
     buff[0] = registerAddress;
 
-    for (int i = 0 ; i < size * typeSize ; ++i)
-        buff[i+1] = data[i];
+    if (litleEndian) {
+
+        for (int i = 0 ; i < size * typeSize ; ++i)
+            buff[i+1] = data[i];
+
+    } else {
+
+        // big endian
+        for (int i = 0 ; i < size ; ++i)
+            for (int j = 0; j < typeSize; ++j)
+                buff[i * typeSize + typeSize - j] = data[i * typeSize + j];
+
+    }
 
     return transact_(chipAddress, buff, 1 + size * typeSize, nullptr, 0);
 }
 
-bool I2C::readBe_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size ) const
+
+bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size, bool litleEndian  ) const
 {
     uint8_t buff[size * typeSize];
     buff[0] = registerAddress;
 
-    bool ok = transact_(chipAddress, buff, 1 , buff, size * typeSize);
+    if (!transact_(chipAddress, buff, 1 , buff, size * typeSize))
+        return false;
 
-    if (ok)
-        for (int i = 0 ; i < size ; ++i) {
-            for (int j = 0; j < typeSize; ++j)
-                data[i * typeSize + j] = buff[i * typeSize + typeSize - j - 1];
-        }
+    if (litleEndian) {
 
-    return ok;
-}
-
-bool I2C::readLe_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size ) const
-{
-    uint8_t buff[size * typeSize];
-    buff[0] = registerAddress;
-
-    bool ok = transact_(chipAddress, buff, 1 , buff, size * typeSize);
-
-    if (ok)
-        for (int i = 0 ; i < size * typeSize ; ++i)
+        for (int i = 0; i < size * typeSize; ++i)
             data[i] = buff[i];
 
-    return ok;
+    } else {
+
+        //big endian
+        for (int i = 0 ; i < size ; ++i)
+            for (int j = 0; j < typeSize; ++j)
+                data[i * typeSize + j] = buff[i * typeSize + typeSize - j - 1];
+
+    }
+
+    return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

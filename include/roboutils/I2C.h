@@ -180,19 +180,9 @@ namespace RoboUtils {
         /// \param data the pointer to array of values to be written
         /// \param size the size of each item in the array
         /// \param count the array size
+        /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        bool writeBe_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count = 1) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief
-        ///
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param data the pointer to array of values to be written
-        /// \param size the size of each item in the array
-        /// \param count the array size
-        /// \return true if there is no error during transfer
-        bool writeLe_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count = 1) const;
+        bool write_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count, bool litleEndian) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief
@@ -202,19 +192,9 @@ namespace RoboUtils {
         /// \param data the pointer to array of values to be filled with data
         /// \param size the size of each item in the array
         /// \param count the array size
+        /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        bool readBe_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count = 1) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief
-        ///
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param data the pointer to array of values to be filled with data
-        /// \param size the size of each item in the array
-        /// \param count the array size
-        /// \return true if there is no error during transfer
-        bool readLe_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count = 1) const;
+        bool read_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count, bool litleEndian) const;
     };
 };
 
