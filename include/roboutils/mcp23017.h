@@ -21,15 +21,7 @@
 
 #if defined(__linux__)
 
-#include <stdbool.h>
-#include <cstdint>
-#include "ci2c.h"
-
 namespace RoboUtils {
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define ADDR_MCP23017_A(a)    (0x20 | ((a) & 7))
 
@@ -74,59 +66,6 @@ extern "C" {
 #define MCP23017_PA0              (1 << 0)  
 
 
-static inline int mcp23017_input(int bus, int chip, uint16_t pins)
-{
-	return i2c_rmw_leuint16(bus, chip, MCP23017_IODIR, 0, pins, 0);
-	return i2c_rmw_leuint16(bus, chip, MCP23017_GPPU, pins, 0, 0);
-}
-
-static inline int mcp23017_input_pullup(int bus, int chip, uint16_t pins)
-{
-	return i2c_rmw_leuint16(bus, chip, MCP23017_IODIR, 0, pins, 0);
-	return i2c_rmw_leuint16(bus, chip, MCP23017_GPPU, 0, pins, 0);
-}
-
-static inline int mcp23017_output(int bus, int chip, uint16_t pins)
-{
-	return i2c_rmw_leuint16(bus, chip, MCP23017_IODIR, pins, 0, 0);
-}
-
-static inline int mcp23017_set(int bus, int chip, uint16_t pins, bool value)
-{
-	return i2c_rmw_leuint16(bus, chip, MCP23017_OLAT, value ? 0 : pins, value ? pins : 0, 0);
-}
-
-static inline int mcp23017_setlow(int bus, int chip, uint16_t pins)
-{
-  return i2c_rmw_leuint16(bus, chip, MCP23017_OLAT, pins, 0, 0);
-}
-
-static inline int mcp23017_sethigh(int bus, int chip, uint16_t pins)
-{
-  return i2c_rmw_leuint16(bus, chip, MCP23017_OLAT, 0, pins, 0);
-}
-
-static inline int mcp23017_toggle(int bus, int chip, uint16_t pins)
-{
-  return i2c_rmw_leuint16(bus, chip, MCP23017_OLAT, 0, 0, pins);
-}
-  
-static inline int mcp23017_setpullup(int bus, int chip, uint16_t pins)
-{
-	return i2c_rmw_leuint16(bus, chip, MCP23017_GPPU, 0, pins, 0);
-}
-
-static inline bool mcp23017_get(int bus, int chip, uint16_t pins)
-{
-	uint16_t p = 0;
-	// TODO return code !
-	i2c_read_leuint16(bus, chip, MCP23017_GPIO, &p);
-	return (pins & p) != 0;
-}
-  
-#ifdef __cplusplus
-}
-#endif
 
 };
 
