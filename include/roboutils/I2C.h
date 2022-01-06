@@ -12,7 +12,7 @@
 namespace RoboUtils {
     class I2C {
     public:
-        I2C(int busNumber = 1);
+        explicit I2C(const std::string &busFile = "/dev/i2c-1");
 
         ~I2C();
 

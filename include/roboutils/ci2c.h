@@ -65,22 +65,6 @@ namespace RoboUtils {
 // forward declarations
 
 /**
- * Initialize I2C bus
- * @param busno Bus number (for Rpiv2 set to 1)
- * @return file descriptor on success
- * @return -1 on failure (errno is set)
- */
-    static inline int i2c_init(int busno);
-
-/**
- * Close the I2C bus
- * @param fd file descriptor to close
- * @return 0 on success
- * @return -1 on failure (errno is set)
- */
-    static inline int i2c_close(int fd);
-
-/**
  * Make one transaction on the I2C bus.
  * 
  * This function writes nw bytes from the bus, following nr bytes reading from the bus.
@@ -283,18 +267,6 @@ namespace RoboUtils {
     }
 
 // I2C FUNCTIONS ---------------------------------------------------------------------------------------
-
-
-    static inline int i2c_init(int busno) {
-      char name[256];
-      sprintf(name, "/dev/i2c-%d", busno);
-      return open(name, O_RDWR);
-    }
-
-    static inline int i2c_close(int fd) {
-      close(fd);
-      return 0;
-    }
 
 //#define LOG
     static inline int i2c_transact(int fd, int chip_addr, uint8_t *buffer, int nw, int nr) {

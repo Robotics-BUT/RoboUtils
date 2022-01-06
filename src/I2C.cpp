@@ -9,12 +9,12 @@
 
 namespace RoboUtils {
 
-    I2C::I2C(int busNumber) {
-        i2cDescriptor = i2c_init(busNumber);
+    I2C::I2C(const std::string &busFile) {
+        i2cDescriptor = open(busFile.c_str(), O_RDWR);
     }
 
     I2C::~I2C() {
-        i2c_close(i2cDescriptor);
+        close(i2cDescriptor);
     }
 
     void I2C::write16bitArray(uint8_t chipAddress, uint8_t registerAddress, int16_t *array, uint8_t arraySize) {
