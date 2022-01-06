@@ -16,6 +16,22 @@ namespace RoboUtils {
 
         ~I2C();
 
+        template<typename T> bool writeLe(int chipAddress, int registerAddress, T value) const;
+
+        template<typename T> bool writeBe(int chipAddress, int registerAddress, T value) const;
+
+        template<typename T> bool writeLe(int chipAddress, int registerAddress, const T *array, int count) const;
+
+        template<typename T> bool writeBe(int chipAddress, int registerAddress, const T *array, int count) const;
+
+        template<typename T> bool readLe(int chipAddress, int registerAddress, T *value) const;
+
+        template<typename T> bool readBe(int chipAddress, int registerAddress, T *value) const;
+
+        template<typename T> bool readLe(int chipAddress, int registerAddress, T *array, int count) const;
+
+        template<typename T> bool readBe(int chipAddress, int registerAddress, T *array, int count) const;
+
         void write16bitArray(uint8_t chipAddress, uint8_t registerAddress, int16_t array[], uint8_t arraySize);
 
         void read32bitArray(uint8_t chipAddress, uint8_t registerAddress, int32_t *array, uint8_t arraySize);
@@ -31,7 +47,17 @@ namespace RoboUtils {
 
     private:
         int i2cDescriptor;
-        std::mutex mutex;
+        mutable std::mutex mutex;
+
+        bool transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) const;
+
+        bool writeBe_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count = 1) const;
+
+        bool writeLe_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count = 1) const;
+
+        bool readBe_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count = 1) const;
+
+        bool readLe_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count = 1) const;
     };
 };
 

@@ -1,9 +1,15 @@
 //
 // Created by Matous Hybl on 2018-10-14.
 //
+#include <cstdio>
 
 #include "roboutils/I2C.h"
-#include "roboutils/ci2c.h"
+
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <cstdint>
+#include <unistd.h>
 
 #if defined(__linux__)
 
@@ -18,64 +24,313 @@ namespace RoboUtils {
     }
 
     void I2C::write16bitArray(uint8_t chipAddress, uint8_t registerAddress, int16_t *array, uint8_t arraySize) {
-        std::lock_guard <std::mutex> lock(mutex);
-        int resultLength = i2c_write_leint16_array(i2cDescriptor, chipAddress, registerAddress, array, arraySize);
 
-        // chip address, register address, chip address, array
-        if (resultLength != 3 + arraySize) {
+        if (!writeLe(chipAddress, registerAddress, array, arraySize))
             throw "failed to write to i2c";
-        }
     }
 
     void I2C::read32bitArray(uint8_t chipAddress, uint8_t registerAddress, int32_t *array, uint8_t arraySize) {
-        std::lock_guard <std::mutex> lock(mutex);
-        int resultLength = i2c_read_leint32_array(i2cDescriptor, chipAddress, registerAddress, array, arraySize);
-        if (resultLength != arraySize) {
+
+        if (!readLe(chipAddress, registerAddress, array, arraySize))
             throw "failed to read from i2c";
-        }
     }
 
     uint16_t I2C::read16bitBEValue(uint8_t chipAddress, uint8_t registerAddress) {
-        std::lock_guard <std::mutex> lock(mutex);
-        uint16_t value;
-        int resultLength = i2c_read_beuint16(i2cDescriptor, chipAddress, registerAddress, &value);
 
-        if (resultLength != 2) {
+        uint16_t value;
+        if (!readBe(chipAddress, registerAddress, &value))
             throw "failed to read from i2c";
-        }
+
         return value;
     }
 
     uint16_t I2C::read16bitLEValue(uint8_t chipAddress, uint8_t registerAddress) {
-        std::lock_guard <std::mutex> lock(mutex);
         uint16_t value;
-        int resultLength = i2c_read_leuint16(i2cDescriptor, chipAddress, registerAddress, &value);
-
-        if (resultLength != 2) {
+        if (!readLe(chipAddress, registerAddress, &value))
             throw "failed to read from i2c";
-        }
+
         return value;
     }
 
     void I2C::write16bitLEValue(uint8_t chipAddress, uint8_t registerAddress, uint16_t value) {
-        std::lock_guard <std::mutex> lock(mutex);
-        int resultLength = i2c_write_leuint16(i2cDescriptor, chipAddress, registerAddress, value);
 
-        if (resultLength != 3 + 2) {
+        if (!writeLe(chipAddress, registerAddress, value))
             throw "failed to write to i2c";
-        }
     }
+
 
     void I2C::update16bitLEValue(uint8_t chipAddress, uint8_t registerAddress, uint16_t setBits, uint16_t clearBits,
                                  uint16_t toggleBits) {
-        std::lock_guard <std::mutex> lock(mutex);
-        int resultLength = i2c_rmw_leuint16(i2cDescriptor, chipAddress, registerAddress, clearBits, setBits,
-                                            toggleBits);
+        uint16_t value;
 
-        if (resultLength != 3) {
+        if (!readLe(chipAddress, registerAddress, &value))
+            throw "failed to read from i2c";
+
+        value = ((value & ~clearBits) | setBits) ^ toggleBits;
+
+        if (!writeLe(chipAddress, registerAddress, value))
             throw "failed to write to i2c";
-        }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // NEW API
+
+    template <typename T>
+    bool I2C::writeLe(const int chipAddress, const int registerAddress, const T value) const
+    {
+        return writeLe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T));
+    }
+
+    template <typename T>
+    bool I2C::writeBe(const int chipAddress, const int registerAddress, const T value) const
+    {
+        return writeBe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T));
+    }
+
+    template <typename T>
+    bool I2C::writeLe(const int chipAddress, const int registerAddress, const T* array, const int count) const
+    {
+        return writeLe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count);
+    }
+
+    template <typename T>
+    bool I2C::writeBe(const int chipAddress, const int registerAddress, const T* array, const int count) const
+    {
+        return writeBe_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count);
+    }
+
+    template <typename T>
+    bool I2C::readLe(const int chipAddress, const int registerAddress, T* value) const
+    {
+        return readLe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T));
+    }
+
+    template <typename T>
+    bool I2C::readBe(const int chipAddress, const int registerAddress, T* value) const
+    {
+        return readBe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T));
+    }
+
+    template <typename T>
+    bool I2C::readLe(const int chipAddress, const int registerAddress, T* array, const int count) const
+    {
+        return readLe_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count);
+    }
+
+    template <typename T>
+    bool I2C::readBe(const int chipAddress, const int registerAddress, T* array, const int count) const
+    {
+        return readBe_( chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count);
+    }
+
+//======================================================================================================================
+// PRIVATE
+
+//#define LOG // TODO log later using matous's engine
+    bool I2C::transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) const
+    {
+        std::lock_guard <std::mutex> lock(mutex);
+
+#ifdef LOG
+        printf( "I2C: @%02x TRANSN W %d R %d ", addr, wn, rn);
+        if (wn > 0) {
+            printf("[ ");
+            for (int i = 0 ; i < wn ; ++i)
+                printf("%02x ", w[i]);
+            printf("] ");
+        }
+#endif
+
+        if (ioctl(i2cDescriptor, I2C_SLAVE, addr))
+            return false;
+
+        if (wn > 0) {
+            int err = write(i2cDescriptor, w, wn);
+
+
+#ifdef LOG
+            printf("(%d written) ", err);
+#endif
+            if (err != wn)
+                return false;
+        }
+
+        if (rn > 0) {
+            int err = read(i2cDescriptor, r, rn);
+
+#ifdef LOG
+            printf("(%d readed) [ ", err);
+            for (int i = 0 ; i < rn ; ++i)
+                printf("%2x ", r[i]);
+            printf("]\n");
+#endif
+            return err == rn;
+        }
+
+#ifdef LOG
+        printf("\n");
+#endif
+        return true;
+    }
+
+    bool I2C::writeBe_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int count ) const
+    {
+        uint8_t buff[1 + count * typeSize];
+        buff[0] = registerAddress;
+
+        for (int i = 0 ; i < count ; ++i) {
+            for (int j = 0; j < typeSize; ++j)
+                buff[i * typeSize + typeSize - j] = data[i * typeSize + j];
+        }
+
+        return transact_(chipAddress, buff, 1 + count * typeSize, nullptr, 0);
+    }
+
+    bool I2C::writeLe_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size ) const
+    {
+        uint8_t buff[1 + size * typeSize];
+        buff[0] = registerAddress;
+
+        for (int i = 0 ; i < size * typeSize ; ++i)
+            buff[i+1] = data[i];
+
+        return transact_(chipAddress, buff, 1 + size * typeSize, nullptr, 0);
+    }
+
+    bool I2C::readBe_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size ) const
+    {
+        uint8_t buff[size * typeSize];
+        buff[0] = registerAddress;
+
+        bool ok = transact_(chipAddress, buff, 1 , buff, size * typeSize);
+
+        if (ok)
+            for (int i = 0 ; i < size ; ++i) {
+                for (int j = 0; j < typeSize; ++j)
+                    data[i * typeSize + j] = buff[i * typeSize + typeSize - j - 1];
+            }
+
+        return ok;
+    }
+
+    bool I2C::readLe_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size ) const
+    {
+        uint8_t buff[size * typeSize];
+        buff[0] = registerAddress;
+
+        bool ok = transact_(chipAddress, buff, 1 , buff, size * typeSize);
+
+        if (ok)
+            for (int i = 0 ; i < size * typeSize ; ++i)
+                data[i] = buff[i];
+
+        return ok;
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+// INSTANTIATION
+
+    template bool I2C::writeLe(int chipAddress, int registerAddress, uint8_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, uint16_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, uint32_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, uint64_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, int8_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, int16_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, int32_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, int64_t val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, float val) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, double val) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::writeBe(int chipAddress, int registerAddress, uint8_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, uint16_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, uint32_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, uint64_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, int8_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, int16_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, int32_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, int64_t val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, float val) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, double val) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const uint8_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const uint16_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const uint32_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const uint64_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const int8_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const int16_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const int32_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const int64_t *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const float *val, const int count) const;
+    template bool I2C::writeLe(int chipAddress, int registerAddress, const double *val, const int count) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const uint8_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const uint16_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const uint32_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const uint64_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const int8_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const int16_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const int32_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const int64_t *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const float *val, const int count) const;
+    template bool I2C::writeBe(int chipAddress, int registerAddress, const double *val, const int count) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint8_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint16_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint32_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint64_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int8_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int16_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int32_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int64_t* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, float* val) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, double* val) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint8_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint16_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint32_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint64_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int8_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int16_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int32_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int64_t* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, float* val) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, double* val) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint8_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint16_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint32_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, uint64_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int8_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int16_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int32_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, int64_t* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, float* array, const int count) const;
+    template bool I2C::readLe(int chipAddress, int registerAddress, double* array, const int count) const;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint8_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint16_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint32_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, uint64_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int8_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int16_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int32_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, int64_t* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, float* array, const int count) const;
+    template bool I2C::readBe(int chipAddress, int registerAddress, double* array, const int count) const;
 };
 
 #endif
