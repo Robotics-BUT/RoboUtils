@@ -10,29 +10,20 @@
 namespace RoboUtils {
 #define PI 3.14159f
 
-// FIXME rewrite using templates
-    inline int16_t saturate(const int16_t value, const int16_t minimum, const int16_t maximum) {
-        if (value < minimum) {
+    template<typename T>
+    static inline constexpr T saturate(const T value, const T minimum, const T maximum)
+    {
+        if (value < minimum)
             return minimum;
-        }
-
-        if (value > maximum) {
+        if (value > maximum)
             return maximum;
-        }
-
         return value;
     }
 
-    inline float saturatef(const float value, const float minimum, const float maximum) {
-        if (value < minimum) {
-            return minimum;
-        }
-
-        if (value > maximum) {
-            return maximum;
-        }
-
-        return value;
+    template<typename T>
+    static inline constexpr T ramp(const T value, const T desired, const T limit)
+    {
+        return value + saturate(desired - value, -limit, limit);
     }
 
 };
