@@ -56,32 +56,38 @@ namespace RoboUtils::Chips::Mcp23017 {
     namespace IOCON {
         const Reg Reg = Reg::IOCON1;
 
-        const uint8_t BANK = (1 << 7);
-        const uint8_t MIRROR = (1 << 6);
-        const uint8_t SEQOP = (1 << 5);
-        const uint8_t DISSLW = (1 << 4);
-        const uint8_t HAEN = (1 << 3);
-        const uint8_t ODR = (1 << 2);
-        const uint8_t INTPOL = (1 << 1);
+        enum : uint8_t {
+            BANK = (1 << 7),
+            MIRROR = (1 << 6),
+            SEQOP = (1 << 5),
+            DISSLW = (1 << 4),
+            HAEN = (1 << 3),
+            ODR = (1 << 2),
+            INTPOL = (1 << 1),
+        };
     }
 
-    namespace Pins {
-        static const uint16_t PB7 = (1 << 15);
-        static const uint16_t PB6 = (1 << 14);
-        static const uint16_t PB5 = (1 << 13);
-        static const uint16_t PB4 = (1 << 12);
-        static const uint16_t PB3 = (1 << 11);
-        static const uint16_t PB2 = (1 << 10);
-        static const uint16_t PB1 = (1 << 9);
-        static const uint16_t PB0 = (1 << 8);
-        static const uint16_t PA7 = (1 << 7);
-        static const uint16_t PA6 = (1 << 6);
-        static const uint16_t PA5 = (1 << 5);
-        static const uint16_t PA4 = (1 << 4);
-        static const uint16_t PA3 = (1 << 3);
-        static const uint16_t PA2 = (1 << 2);
-        static const uint16_t PA1 = (1 << 1);
-        static const uint16_t PA0 = (1 << 0);
+    namespace Pin {
+
+        enum : uint16_t {
+            PB7 = (1 << 15),
+            PB6 = (1 << 14),
+            PB5 = (1 << 13),
+            PB4 = (1 << 12),
+            PB3 = (1 << 11),
+            PB2 = (1 << 10),
+            PB1 = (1 << 9),
+            PB0 = (1 << 8),
+            PA7 = (1 << 7),
+            PA6 = (1 << 6),
+            PA5 = (1 << 5),
+            PA4 = (1 << 4),
+            PA3 = (1 << 3),
+            PA2 = (1 << 2),
+            PA1 = (1 << 1),
+            PA0 = (1 << 0),
+        };
+
     }
 };
 

@@ -140,19 +140,21 @@ namespace RoboUtils::Chips::Ad799X {
             return reg & 0xFFF;
         }
 
-        static const uint16_t ALERT       =  1 << 15;
+        enum : uint16_t {
+            ALERT       =  1 << 15,
 
-        static constexpr uint16_t CHAN        =  ToCHAN(7 );
-        static constexpr uint16_t CHAN_0      =  ToCHAN(0 );
-        static constexpr uint16_t CHAN_1      =  ToCHAN(1 );
-        static constexpr uint16_t CHAN_2      =  ToCHAN(2 );
-        static constexpr uint16_t CHAN_3      =  ToCHAN(3 );
-        static constexpr uint16_t CHAN_4      =  ToCHAN(4 );
-        static constexpr uint16_t CHAN_5      =  ToCHAN(5 );
-        static constexpr uint16_t CHAN_6      =  ToCHAN(6 );
-        static constexpr uint16_t CHAN_7      =  ToCHAN(7 );
+            CHAN        =  ToCHAN(7 ),
+            CHAN_0      =  ToCHAN(0 ),
+            CHAN_1      =  ToCHAN(1 ),
+            CHAN_2      =  ToCHAN(2 ),
+            CHAN_3      =  ToCHAN(3 ),
+            CHAN_4      =  ToCHAN(4 ),
+            CHAN_5      =  ToCHAN(5 ),
+            CHAN_6      =  ToCHAN(6 ),
+            CHAN_7      =  ToCHAN(7 ),
 
-        static constexpr uint16_t VALUE       =  ToVALUE(0x0FFF);
+            VALUE       =  ToVALUE(0x0FFF),
+        };
     }
 
     namespace ALERT {
@@ -165,14 +167,16 @@ namespace RoboUtils::Chips::Ad799X {
             return 2 << (ch * 2);
         }
 
-        static constexpr uint8_t L0        =  ToL(0 );
-        static constexpr uint8_t H0        =  ToH(0 );
-        static constexpr uint8_t L1        =  ToL(1 );
-        static constexpr uint8_t H1        =  ToH(1 );
-        static constexpr uint8_t L2        =  ToL(2 );
-        static constexpr uint8_t H2        =  ToH(2 );
-        static constexpr uint8_t L3        =  ToL(3 );
-        static constexpr uint8_t H3        =  ToH(3 );
+        enum : uint8_t {
+            L0 = ToL(0),
+            H0 = ToH(0),
+            L1 = ToL(1),
+            H1 = ToH(1),
+            L2 = ToL(2),
+            H2 = ToH(2),
+            L3 = ToL(3),
+            H3 = ToH(3),
+        };
     }
 
 
@@ -206,9 +210,6 @@ namespace RoboUtils::Chips::Ad799X {
 
     namespace CYCLE {
 
-        static const uint8_t SAMPDELAY    =  1 << 7;
-        static const uint8_t TRIALDELAY   =  1 << 6;
-
         // T is 2us
         static constexpr int FromCYC(const uint8_t ch) {
             if (!(ch & 7))
@@ -217,15 +218,20 @@ namespace RoboUtils::Chips::Ad799X {
             return 32 << (ch & 7);
         }
 
-        static const uint8_t CYC      =         7 << 0;
-        static const uint8_t CYC_0T   =             0 << 0;
-        static const uint8_t CYC_32T  =             1 << 0;
-        static const uint8_t CYC_64T  =             2 << 0;
-        static const uint8_t CYC_128T =             3 << 0;
-        static const uint8_t CYC_256T =             4 << 0;
-        static const uint8_t CYC_512T =             5 << 0;
-        static const uint8_t CYC_1024T =            6 << 0;
-        static const uint8_t CYC_2048T =            7 << 0;
+        enum : uint8_t {
+            SAMPDELAY    =  1 << 7,
+            TRIALDELAY   =  1 << 6,
+
+            CYC          = 7 << 0,
+            CYC_0T       = 0 << 0,
+            CYC_32T      = 1 << 0,
+            CYC_64T      = 2 << 0,
+            CYC_128T     = 3 << 0,
+            CYC_256T     = 4 << 0,
+            CYC_512T     = 5 << 0,
+            CYC_1024T    = 6 << 0,
+            CYC_2048T    = 7 << 0,
+        };
     }
 
 
@@ -239,7 +245,9 @@ namespace RoboUtils::Chips::Ad799X {
             return reg & 0xFFF;
         }
 
-        static constexpr uint16_t MASK       =  To(0x0FFF);
+        enum : uint16_t {
+            MASK = To(0x0FFF),
+        };
     }
 
     namespace HYST {
@@ -252,7 +260,9 @@ namespace RoboUtils::Chips::Ad799X {
             return reg & 0xFFF;
         }
 
-        static constexpr uint16_t MASK       =  To(0x0FFF);
+        enum : uint16_t {
+            MASK = To(0x0FFF),
+        };
     }
 
 
