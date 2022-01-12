@@ -10,22 +10,24 @@
 using namespace RoboUtils;
 using namespace RoboUtils::Chips;
 
-ADC::ADC(I2C *i2c) {
+ADC::ADC(I2C *i2c)
+{
     this->i2c = i2c;
     chipAddress = ADDR_AD799X_0_L;
 }
 
-uint16_t ADC::readChannel(uint8_t channel) {
+uint16_t ADC::readChannel(uint8_t channel)
+{
 
     uint16_t channelAndValue;
     if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &channelAndValue, false))
-        throw "Can't read from ADC";
+        throw adc_error();
 
     uint16_t readChannel = Ad799X::RESULT::FromCHAN(channelAndValue);
 
     // FIXME test if actually true
     if (readChannel != channel)
-        throw "ADC: received result channel is not equal to requested channel";
+        throw std::logic_error("ADC: received result channel is not equal to requested channel");
 
     return Ad799X::RESULT::FromVALUE(channelAndValue );
 }

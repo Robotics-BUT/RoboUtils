@@ -99,6 +99,11 @@ namespace RoboUtils {
         int chipAddress;
     };
 
+    class gpio_error : public std::logic_error {
+    public:
+        gpio_error() : std::logic_error("GPIO: Access error") {}
+    };
+
     namespace Pin {
 
         enum : uint16_t {

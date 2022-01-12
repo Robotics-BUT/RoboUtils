@@ -21,6 +21,11 @@ namespace RoboUtils {
 
         int chipAddress;
     };
+
+    class adc_error : public std::logic_error {
+    public:
+        adc_error() : std::logic_error("ADC: Access error") {}
+    };
 };
 
 #endif
