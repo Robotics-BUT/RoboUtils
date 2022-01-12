@@ -5,11 +5,7 @@
 #ifndef FIRMWARE_GPIO_H
 #define FIRMWARE_GPIO_H
 
-#if !defined(__linux__)
-# error "This part of library is not compatible with your setup"
-#endif
-
-#include "I2C.h"
+#include "roboutils/I2C.h"
 
 namespace RoboUtils {
 
