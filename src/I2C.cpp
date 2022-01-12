@@ -4,12 +4,15 @@
 #include "roboutils/I2C.h"
 
 #include <linux/i2c-dev.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <cstdint>
-#include <unistd.h>
+#include <sys/ioctl.h> // ioctl
+#include <fcntl.h> // O_RDWR
+#include <unistd.h>  // open, close
 
-#if defined(__linux__)
+#include <cstdint>
+
+#if !defined(__linux__)
+# error "This part of library is not compatible with your setup"
+#endif
 
 using namespace RoboUtils;
 
@@ -21,11 +24,9 @@ I2C::I2C(const std::string &busFile)
 
 I2C::~I2C()
 {
+    // FIXME: Do not close when wrongly opened
     close(i2cDescriptor);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NEW API
 
 template <typename T>
 bool I2C::write(const int chipAddress, const int registerAddress, const T value, bool littleEndian) const
@@ -231,5 +232,3 @@ template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int16_t 
 template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int32_t setBits, int32_t clearBits, int32_t toggleBits, bool littleEndian) const;
 template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int64_t setBits, int64_t clearBits, int64_t toggleBits, bool littleEndian) const;
 // float a double nedavaji smysl
-
-#endif

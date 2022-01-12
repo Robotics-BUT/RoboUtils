@@ -6,7 +6,9 @@
 #include "roboutils/GPIO.h"
 #include "roboutils/chips/mcp23017.h"
 
-#if defined(__linux__)
+#if !defined(__linux__)
+# error "This part of library is not compatible with your setup"
+#endif
 
 using namespace RoboUtils;
 using namespace RoboUtils::Chips;
@@ -64,5 +66,3 @@ bool GPIO::get(uint16_t pins) const
 
     return (pins & p) != 0;
 }
-
-#endif

@@ -5,18 +5,14 @@
 #ifndef FIRMWARE_GPIO_H
 #define FIRMWARE_GPIO_H
 
-#if defined(__linux__)
+#if !defined(__linux__)
+# error "This part of library is not compatible with your setup"
+#endif
+
 #include "I2C.h"
 
 namespace RoboUtils {
-#define INPUT true
-#define OUTPUT false
-#define HIGH true
-#define LOW false
-#define PULLUP_ON true
-#define PULLUP_OFF false
 
-// C++ wrapper around MCP3017 library
     ///-------------------------------------------------------------------------------------------------------------
     /// \brief The GPIO multi-threaded library
     ///
@@ -129,4 +125,3 @@ namespace RoboUtils {
 };
 
 #endif
-#endif //FIRMWARE_GPIO_H

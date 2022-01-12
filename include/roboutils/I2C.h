@@ -5,7 +5,9 @@
 #ifndef FIRMWARE_I2C_H
 #define FIRMWARE_I2C_H
 
-#if defined(__linux__)
+#if !defined(__linux__)
+# error "This part of library is not compatible with your setup"
+#endif
 
 #include <mutex>
 
@@ -133,6 +135,3 @@ namespace RoboUtils {
 };
 
 #endif
-
-
-#endif //FIRMWARE_I2C_H

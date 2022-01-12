@@ -6,7 +6,10 @@
 #include "roboutils/ADC.h"
 #include "roboutils/chips/ad799x.h"
 
-#if defined(__linux__)
+#if !defined(__linux__)
+# error "This part of library is not compatible with your setup"
+#endif
+
 using namespace RoboUtils;
 using namespace RoboUtils::Chips;
 
@@ -31,6 +34,3 @@ uint16_t ADC::readChannel(uint8_t channel)
 
     return Ad799X::RESULT::FromVALUE(channelAndValue );
 }
-
-
-#endif
