@@ -9,90 +9,59 @@
 #if defined(__linux__)
 
 using namespace RoboUtils;
-using namespace RoboUtils::Chips::Mcp23017;
+using namespace RoboUtils::Chips;
 
-GPIO::GPIO(I2C *i2c, int chipIndex) {
+GPIO::GPIO(I2C *i2c, int chipIndex)
+{
     this->i2c = i2c;
-    chipAddress = Addr(chipIndex);
+    chipAddress = Mcp23017::Addr(chipIndex);
 }
-
-void GPIO::setDirection(uint16_t pin, bool input) {
-    i2c->update16bitLEValue(
-            chipAddress,
-            +Reg::IODIR,
-            static_cast<uint16_t>(input ? pin : 0),
-            static_cast<uint16_t>(input ? 0 : pin),
-            0);
-}
-
-void GPIO::write(uint16_t pin, bool input) {
-    i2c->update16bitLEValue(
-            chipAddress,
-            +Reg::OLAT,
-            static_cast<uint16_t>(input ? 0 : pin),
-            static_cast<uint16_t>(input ? pin : 0),
-            0);
-}
-
-bool GPIO::read(uint16_t pin) {
-    uint16_t registerValue = i2c->read16bitLEValue(chipAddress, +Reg::GPIO);
-
-    return (registerValue & pin) != 0;
-}
-
-void GPIO::setPullUp(uint16_t pin, bool input) {
-    i2c->update16bitLEValue(
-            chipAddress,
-            +Reg::GPPU,
-            static_cast<uint16_t>(input ? pin : 0),
-            static_cast<uint16_t>(input ? 0 : pin),
-            0);
-}
-
 //----------------------------------------------------------------------------------------------------------------
 // new api
 
-void GPIO::input(uint16_t pins) const
+void GPIO::input(uint16_t pins, bool pullup) const
 {
-    i2c->update16bitLEValue(chipAddress, +Reg::IODIR, 0, pins, 0);
-    i2c->update16bitLEValue(chipAddress, +Reg::GPPU, pins, 0, 0);
-}
+    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::IODIR, pins, 0, 0, true))
+        throw "Failed to set input";
 
-void GPIO::input_pullup(uint16_t pins) const
-{
-    i2c->update16bitLEValue(chipAddress, +Reg::IODIR, 0, pins, 0);
-    i2c->update16bitLEValue(chipAddress, +Reg::GPPU, 0, pins, 0);
+    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::GPPU, pullup ? pins : 0, pullup ? 0 : pins, 0, true))
+        throw "Failed to set pullup";
 }
 
 void GPIO::output(uint16_t pins) const
 {
-    i2c->update16bitLEValue(chipAddress, +Reg::IODIR, pins, 0, 0);
+    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::IODIR, 0, pins, 0, true))
+        throw "Failed to set output";
 }
 
 void GPIO::set(uint16_t pins, bool value) const
 {
-    i2c->update16bitLEValue(chipAddress,  +Reg::OLAT, value ? 0 : pins, value ? pins : 0, 0);
+    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, value ? 0 : pins, value ? pins : 0, 0, true))
+        throw "Failed to set";
 }
 
 void GPIO::low(uint16_t pins) const
 {
-    i2c->update16bitLEValue(chipAddress,  +Reg::OLAT, pins, 0, 0);
+    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, pins, 0, 0, true))
+        throw "Failed to set";
 }
 
 void GPIO::high(uint16_t pins) const
 {
-    i2c->update16bitLEValue(chipAddress,  +Reg::OLAT, 0, pins, 0);
+    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, 0, pins, 0, true))
+        throw "Failed to set";
 }
 
 void GPIO::toggle(uint16_t pins) const
 {
-    i2c->update16bitLEValue(chipAddress,  +Reg::OLAT, 0, 0, pins);
+    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, 0, 0, pins, true))
+        throw "Failed to togggle";
 }
 
 bool GPIO::get(uint16_t pins) const
 {
     uint16_t p = 0;
-    if (!i2c->readLe(chipAddress, +Reg::GPIO, &p))
+    if (!i2c->read(chipAddress, +Mcp23017::Reg::GPIO, &p, true))
         throw "failed to get GPIO state";
 
     return (pins & p) != 0;

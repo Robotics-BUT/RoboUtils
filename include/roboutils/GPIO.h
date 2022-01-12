@@ -46,25 +46,12 @@ namespace RoboUtils {
         /// \param chipIndex the index of the chip on bus
         explicit GPIO(I2C *i2c, int chipIndex = 0);
 
-        void setDirection(uint16_t pin, bool input);
-
-        void setPullUp(uint16_t pin, bool input);
-
-        void write(uint16_t pin, bool input);
-
-        bool read(uint16_t pin);
-
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Set selected pins to input mode
         ///
         /// \param pins
-        void input(uint16_t pins) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief Set specified pins to input mode with active pullup
-        ///
-        /// \param pins
-        void input_pullup(uint16_t pins) const;
+        /// \param pullup true if the pullup should e activated on those pins
+        void input(uint16_t pins, bool pullup = true) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Set specified pins to output mode

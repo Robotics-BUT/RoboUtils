@@ -36,22 +36,9 @@ namespace RoboUtils {
         /// \param chipAddress the address of chip on bus to be communicated with
         /// \param registerAddress the address of the register on the chip
         /// \param value the value to be written
+        /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        template<typename T> bool writeLe(int chipAddress, int registerAddress, T value) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief Write register value on the bus as BigEndian
-        ///
-        /// \note the type of value can be any standard C++ value type from <cstdint>, ie:
-        ///  uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t, float, double
-        ///  the string type is not supported !
-        ///
-        /// \tparam T type of value to transfer
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param value the value to be written
-        /// \return true if there is no error during transfer
-        template<typename T> bool writeBe(int chipAddress, int registerAddress, T value) const;
+        template<typename T> bool write(int chipAddress, int registerAddress, T value, bool littleEndian=true) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Write an array of register values on the bus as LittleEndian
@@ -66,22 +53,7 @@ namespace RoboUtils {
         /// \param array the array of values to be written
         /// \param count the array size
         /// \return true if there is no error during transfer
-        template<typename T> bool writeLe(int chipAddress, int registerAddress, const T *array, int count) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief Write an array of register values on the bus as BigEndian
-        ///
-        /// \note the type of value can be any standard C++ value type from <cstdint>, ie:
-        ///  uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t, float, double
-        ///  the string type is not supported !
-        ///
-        /// \tparam T type of value to transfer
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param array the array of values to be written
-        /// \param count the array size
-        /// \return true if there is no error during transfer
-        template<typename T> bool writeBe(int chipAddress, int registerAddress, const T *array, int count) const;
+        template<typename T> bool write(int chipAddress, int registerAddress, const T *array, int count, bool littleEndian=true) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Read register value from the bus as LittleEndian
@@ -95,21 +67,7 @@ namespace RoboUtils {
         /// \param registerAddress the address of the register on the chip
         /// \param value the value will be filled wirh read data
         /// \return true if there is no error during transfer
-        template<typename T> bool readLe(int chipAddress, int registerAddress, T *value) const;
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief Read register value from the bus as BigEndian
-        ///
-        /// \note the type of value can be any standard C++ value type from <cstdint>, ie:
-        ///  uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t, float, double
-        ///  the string type is not supported !
-        ///
-        /// \tparam T type of value to transfer
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param value the value will be filled wirh read data
-        /// \return true if there is no error during transfer
-        template<typename T> bool readBe(int chipAddress, int registerAddress, T *value) const;
+        template<typename T> bool read(int chipAddress, int registerAddress, T *value, bool littleEndian=true) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Read array of register values from the bus as LittleEndian
@@ -124,35 +82,11 @@ namespace RoboUtils {
         /// \param array the array of values to be filled with returned data
         /// \param count the array size
         /// \return true if there is no error during transfer
-        template<typename T> bool readLe(int chipAddress, int registerAddress, T *array, int count) const;
+        template<typename T> bool read(int chipAddress, int registerAddress, T *array, int count, bool littleEndian=true) const;
 
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief Read array of register values from the bus as BigEndian
-        ///
-        /// \note the type of value can be any standard C++ value type from <cstdint>, ie:
-        ///  uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t, float, double
-        ///  the string type is not supported !
-        ///
-        /// \tparam T type of value to transfer
-        /// \param chipAddress the address of chip on bus to be communicated with
-        /// \param registerAddress the address of the register on the chip
-        /// \param array the array of values to be filled with returned data
-        /// \param count the array size
-        /// \return true if there is no error during transfer
-        template<typename T> bool readBe(int chipAddress, int registerAddress, T *array, int count) const;
 
-        void write16bitArray(uint8_t chipAddress, uint8_t registerAddress, int16_t array[], uint8_t arraySize);
-
-        void read32bitArray(uint8_t chipAddress, uint8_t registerAddress, int32_t *array, uint8_t arraySize);
-
-        uint16_t read16bitBEValue(uint8_t chipAddress, uint8_t registerAddress);
-
-        uint16_t read16bitLEValue(uint8_t chipAddress, uint8_t registerAddress);
-
-        void write16bitLEValue(uint8_t chipAddress, uint8_t registerAddress, uint16_t value);
-
-        void update16bitLEValue(uint8_t chipAddress, uint8_t registerAddress, uint16_t setBits, uint16_t clearBits,
-                                uint16_t toggleBits);
+        template<typename T>
+        bool update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clearBits, T toggleBits, bool littleEndian=true) const;
 
     private:
         /// the file descriptor
