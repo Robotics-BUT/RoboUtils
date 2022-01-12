@@ -21,6 +21,16 @@ namespace RoboUtils {
     }
 
     template<typename T>
+    static inline constexpr T saturate(const T value, const T maximum)
+    {
+        if (value < -maximum)
+            return -maximum;
+        if (value > maximum)
+            return maximum;
+        return value;
+    }
+
+    template<typename T>
     static inline constexpr T ramp(const T value, const T desired, const T limit)
     {
         return value + saturate(desired - value, -limit, limit);
