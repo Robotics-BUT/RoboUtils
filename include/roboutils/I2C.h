@@ -132,6 +132,11 @@ namespace RoboUtils {
         /// \return true if there is no error during transfer
         bool read_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count, bool litleEndian) const;
     };
+
+    class i2c_error : public std::logic_error {
+    public:
+        i2c_error() : std::logic_error("I2C: Unrecoverable error") {}
+    };
 };
 
 #endif

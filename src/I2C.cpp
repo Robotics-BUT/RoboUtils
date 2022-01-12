@@ -76,7 +76,7 @@ bool I2C::transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) 
     std::lock_guard <std::mutex> lock(mutex);
 
     if (i2cDescriptor < 0)
-        return false;
+        throw i2c_error();
 
 #ifdef LOG
     printf( "I2C: @%02x TRANSN W %d R %d ", addr, wn, rn);
@@ -89,7 +89,7 @@ bool I2C::transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) 
 #endif
 
     if (ioctl(i2cDescriptor, I2C_SLAVE, addr))
-        return false;
+        throw i2c_error();
 
     if (wn > 0) {
         int err = ::write(i2cDescriptor, w, wn);
