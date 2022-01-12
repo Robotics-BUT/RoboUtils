@@ -13,13 +13,15 @@ namespace RoboUtils {
     /// \brief The GPIO multi-threaded library
     ///
     /// \code
+    ///  auto RUN = Pin::PA7;
+    ///
     ///  I2C bus{"/dev/i2c-1"};
     ///  GPIO gpio{ &bus };
     ///
     ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set PA1...PA3 to output
-    ///  gpio.input_pullup(Pin::PA7 | Pin::PA6);             // set pins PA7 and PA6 to input
+    ///  gpio.input(RUN | Pin::PA6, true);                   // set pins PA7 and PA6 to input with pullup
     ///
-    ///  while(gpio.get(Pin::PA7)) {                         // loo until button on PA7 press
+    ///  while(gpio.get(RUN)) {                              // loo until button on PA7 press
     ///      gpio.high(Pin::PA1);                            // set PA1 to high level (LED off)
     ///      delay(500);
     ///      gpio.low(Pin::PA1);                             // set PA1 to low level (LED on)
