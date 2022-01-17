@@ -46,7 +46,7 @@ using namespace RoboUtils;
             if (!udp.bound)
                 udp.bind(5555);
 
-            udp.send(address, port, buffer.str());
+            udp.sendStr(address, port, buffer.str());
 
         }
     }

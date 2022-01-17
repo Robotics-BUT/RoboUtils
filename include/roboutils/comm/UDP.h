@@ -42,7 +42,7 @@ namespace RoboUtils::COMM {
             send(host, port, reinterpret_cast<const uint8_t*>(data), sizeof(T));
         }
 
-        void send(const std::string &host, uint16_t port, const std::string &data) const
+        void sendStr(const std::string &host, uint16_t port, const std::string &data) const
         {
             send(host, port, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
         }
