@@ -20,45 +20,38 @@ SOFTWARE.
 */
 
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <string.h>
+#include <cstdint>
 #include <string>
-#include <iostream>
-
+#include <vector>
 
 namespace RoboUtils::COMM {
 
     class UDP {
     public:
-        UDP(uint16_t port);
+        UDP();
 
         ~UDP();
 
-        void receive(unsigned char **buffer);
+        void bind(uint16_t port);
 
-        void send(const char *host, uint16_t port, unsigned char *buffer, uint32_t size);
+        void send(const std::string &host, uint16_t port, const uint8_t *buffer, std::size_t size) const;
 
         template<typename T>
-        void send(std::string host, uint16_t port, T &data) {
-            uint8_t buffer[sizeof(T)];
-            size_t size = sizeof(buffer);
-            memcpy(buffer, &data, sizeof(T));
-            sockaddr_in ca = {};
-            memset(&ca, 0, sizeof(ca));
-            ca.sin_family = AF_INET;
-            ca.sin_addr.s_addr = inet_addr(host.c_str());
-
-            ca.sin_port = htons(port);
-            if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &ca, sizeof(ca)) != size) {
-                std::cout << "Failed to send UDP packet to: " << host << ":" << port << std::endl;
-            }
+        void send(const std::string &host, uint16_t port, const T *data) const
+        {
+            send(host, port, reinterpret_cast<const uint8_t*>(data), sizeof(T));
         }
 
-        bool available();
+        void send(const std::string &host, uint16_t port, const std::string &data) const
+        {
+            send(host, port, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
+        }
+
+        bool available() const;
+
+        std::vector<uint8_t>  receive() const;
+
+        bool bound{false};
 
     private:
         int socketDescriptor = 0;

@@ -27,6 +27,7 @@ namespace RoboUtils::COMM {
     class TCPClient {
     public:
         TCPClient(std::string address, uint16_t port);
+
         void writeToSocket(uint8_t * data, uint16_t length);
 
         int getFileDescriptor();

@@ -12,7 +12,7 @@
 using namespace RoboUtils::COMM;
 
 TCPClient::TCPClient(std::string address, uint16_t port) {
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
@@ -20,7 +20,7 @@ TCPClient::TCPClient(std::string address, uint16_t port) {
     addr.sin_port = htons(port);
 
     if (connect(fd, (sockaddr *) &addr, sizeof(addr)) != 0) {
-        throw -1;
+        throw -1; // FIXME WRONG DESIGN
     }
 }
 

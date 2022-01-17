@@ -60,7 +60,7 @@ namespace RoboUtils {
         static uint16_t port;
         static COMM::UDP udp;
 
-        static void log(string level, string message);
+        static void log(const string& level, const string& message);
 
         static string time();
     };
