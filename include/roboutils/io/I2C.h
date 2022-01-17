@@ -12,7 +12,7 @@
 #include <mutex>
 #include <cstdint>
 
-namespace RoboUtils {
+namespace RoboUtils::IO {
     class I2C {
     public:
 

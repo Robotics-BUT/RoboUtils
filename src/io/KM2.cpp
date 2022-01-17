@@ -10,7 +10,7 @@
 # error "This part of library is not compatible with your setup"
 #endif
 
-using namespace RoboUtils;
+using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
 
 KM2::KM2(I2C *aBus, int aChipAddress)

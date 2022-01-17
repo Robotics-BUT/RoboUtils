@@ -7,7 +7,7 @@
 
 #include <roboutils/io/I2C.h>
 
-namespace RoboUtils {
+namespace RoboUtils::IO {
 
     class ADC {
     public:

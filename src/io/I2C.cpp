@@ -12,7 +12,7 @@
 # error "This part of library is not compatible with your setup"
 #endif
 
-using namespace RoboUtils;
+using namespace RoboUtils::IO;
 
 I2C::I2C(const std::string &busFile)
 {

@@ -8,7 +8,7 @@
 
 #include <roboutils/io/I2C.h>
 
-namespace RoboUtils {
+namespace RoboUtils::IO {
 
     class KM2 {
     public:

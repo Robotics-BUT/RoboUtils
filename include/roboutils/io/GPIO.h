@@ -7,7 +7,7 @@
 
 #include <roboutils/io/I2C.h>
 
-namespace RoboUtils {
+namespace RoboUtils::IO {
 
     ///-------------------------------------------------------------------------------------------------------------
     /// \brief The GPIO multi-threaded library
