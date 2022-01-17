@@ -27,9 +27,10 @@ SOFTWARE.
 #include <unistd.h>
 #include <string.h>
 #include <string>
+#include <iostream>
 
-namespace RoboUtils {
-    using std::string;
+
+namespace RoboUtils::COMM {
 
     class UDP {
     public:
@@ -42,7 +43,7 @@ namespace RoboUtils {
         void send(const char *host, uint16_t port, unsigned char *buffer, uint32_t size);
 
         template<typename T>
-        void send(string host, uint16_t port, T &data) {
+        void send(std::string host, uint16_t port, T &data) {
             uint8_t buffer[sizeof(T)];
             size_t size = sizeof(buffer);
             memcpy(buffer, &data, sizeof(T));

@@ -14,7 +14,7 @@ namespace RoboUtils {
     string Log::path = "";
     string Log::address = "";
     uint16_t Log::port = 0;
-    UDP Log::udp = UDP(5555);
+    COMM::UDP Log::udp = COMM::UDP(5555);
 
     void Log::setPath(string path) {
         ostringstream buffer;

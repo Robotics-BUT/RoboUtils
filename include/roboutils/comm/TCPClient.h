@@ -22,14 +22,17 @@ SOFTWARE.
 #include <string>
 #include <cstdint>
 
-class TCPClient {
-public:
-    TCPClient(std::string address, uint16_t port);
-    void writeToSocket(uint8_t * data, uint16_t length);
+namespace RoboUtils::COMM {
 
-    int getFileDescriptor();
+    class TCPClient {
+    public:
+        TCPClient(std::string address, uint16_t port);
+        void writeToSocket(uint8_t * data, uint16_t length);
 
-private:
-    int fd = 0;
-};
+        int getFileDescriptor();
 
+    private:
+        int fd = 0;
+    };
+
+}

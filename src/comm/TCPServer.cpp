@@ -2,10 +2,14 @@
 // Created by Matous Hybl on 4/9/19.
 //
 
+#include <roboutils/comm/TCPServer.h>
+
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
-#include "roboutils/comm/TCPServer.h"
+
+
+using namespace RoboUtils::COMM;
 
 TCPServer::TCPServer(uint16_t port) {
     sockaddr_in address = {};

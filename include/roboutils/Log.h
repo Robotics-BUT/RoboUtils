@@ -58,7 +58,7 @@ namespace RoboUtils {
         static string path;
         static string address;
         static uint16_t port;
-        static UDP udp;
+        static COMM::UDP udp;
 
         static void log(string level, string message);
 

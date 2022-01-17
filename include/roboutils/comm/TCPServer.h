@@ -22,21 +22,25 @@ SOFTWARE.
 #include <cstdint>
 #include <set>
 
-class TCPServer {
-public:
-    explicit TCPServer(uint16_t port);
+namespace RoboUtils::COMM {
 
-    int acceptConnection();
+    class TCPServer {
+    public:
+        explicit TCPServer(uint16_t port);
 
-    void closeConnection(int fd);
+        int acceptConnection();
 
-    int getFileDescriptor();
+        void closeConnection(int fd);
 
-    const std::set<int> getOpenedConnections() const;
+        int getFileDescriptor();
 
-private:
-    int fd;
-    std::set<int> openedConnections;
-};
+        const std::set<int> getOpenedConnections() const;
+
+    private:
+        int fd;
+        std::set<int> openedConnections;
+    };
+
+}
 
 

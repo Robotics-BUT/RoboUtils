@@ -2,10 +2,14 @@
 // Created by Matous Hybl on 4/9/19.
 //
 
+#include <roboutils/comm/TCPClient.h>
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "roboutils/comm/TCPClient.h"
+
+
+using namespace RoboUtils::COMM;
 
 TCPClient::TCPClient(std::string address, uint16_t port) {
     fd = socket(AF_INET, SOCK_STREAM, 0);
