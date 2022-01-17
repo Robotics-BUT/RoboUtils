@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
-#include "roboutils/TCPServer.h"
+#include "roboutils/comm/TCPServer.h"
 
 TCPServer::TCPServer(uint16_t port) {
     sockaddr_in address = {};

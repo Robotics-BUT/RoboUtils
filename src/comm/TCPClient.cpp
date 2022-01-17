@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "roboutils/TCPClient.h"
+#include "roboutils/comm/TCPClient.h"
 
 TCPClient::TCPClient(std::string address, uint16_t port) {
     fd = socket(AF_INET, SOCK_STREAM, 0);
