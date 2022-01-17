@@ -2,8 +2,8 @@
 // Created by Matous Hybl on 2018-10-23.
 //
 
-#include <cstdint>
-#include "roboutils/ADC.h"
+#include "roboutils/io/ADC.h"
+
 #include "roboutils/chips/ad799x.h"
 
 #if !defined(__linux__)

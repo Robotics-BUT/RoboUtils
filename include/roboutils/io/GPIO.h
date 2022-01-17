@@ -5,7 +5,7 @@
 #ifndef FIRMWARE_GPIO_H
 #define FIRMWARE_GPIO_H
 
-#include "roboutils/I2C.h"
+#include <roboutils/io/I2C.h>
 
 namespace RoboUtils {
 

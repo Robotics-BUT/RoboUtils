@@ -10,6 +10,7 @@
 #endif
 
 #include <mutex>
+#include <cstdint>
 
 namespace RoboUtils {
     class I2C {

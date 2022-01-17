@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "roboutils/I2C.h"
-
 #include <tuple>
+
+#include <roboutils/io/I2C.h>
 
 namespace RoboUtils {
 

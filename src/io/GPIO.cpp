@@ -2,8 +2,8 @@
 // Created by Matous Hybl on 2019-01-05.
 //
 
-#include <cstdint>
-#include "roboutils/GPIO.h"
+#include "roboutils/io/GPIO.h"
+
 #include "roboutils/chips/mcp23017.h"
 
 #if !defined(__linux__)

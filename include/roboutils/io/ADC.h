@@ -5,7 +5,7 @@
 #ifndef FIRMWARE_ADC_H
 #define FIRMWARE_ADC_H
 
-#include "roboutils/I2C.h"
+#include <roboutils/io/I2C.h>
 
 namespace RoboUtils {
 

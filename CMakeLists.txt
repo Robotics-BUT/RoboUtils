@@ -3,9 +3,9 @@ project(RoboUtils VERSION 0.1 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 14)
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES src/*.cpp src/io/*.cpp)
 
-file(GLOB HEADERS include/*.h)
+file(GLOB HEADERS include/*.h include/io/*.cpp)
 
 add_library(libroboutils ${SOURCES})
 

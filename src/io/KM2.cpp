@@ -2,9 +2,9 @@
 // Created by bufran on 13.01.22.
 //
 
-#include "roboutils/KM2.h"
+#include "roboutils/io/KM2.h"
 #include "roboutils/chips/km2chip.h"
-#include <roboutils/utils.h>
+#include "roboutils/utils.h"
 
 #if !defined(__linux__)
 # error "This part of library is not compatible with your setup"

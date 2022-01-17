@@ -1,14 +1,12 @@
 //
 // Created by Matous Hybl on 2018-10-14.
 //
-#include "roboutils/I2C.h"
+#include "roboutils/io/I2C.h"
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h> // ioctl
 #include <fcntl.h> // O_RDWR
 #include <unistd.h>  // open, close
-
-#include <cstdint>
 
 #if !defined(__linux__)
 # error "This part of library is not compatible with your setup"
