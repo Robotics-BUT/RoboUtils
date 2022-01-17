@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of the KAMBot project.
  * 
@@ -16,12 +17,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MCP23017_H
-#define MCP23017_H
+
 
 #include <cstdint>
-
-#if defined(__linux__)
 
 namespace RoboUtils::Chips::Mcp23017 {
 
@@ -91,7 +89,5 @@ namespace RoboUtils::Chips::Mcp23017 {
     }
 };
 
-#endif
 
-#endif /* MCP23017_H */
 

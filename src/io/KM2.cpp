@@ -17,13 +17,9 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-#include "roboutils/io/KM2.h"
-#include "roboutils/chips/km2chip.h"
-#include "roboutils/utils.h"
-
-#if !defined(__linux__)
-# error "This part of library is not compatible with your setup"
-#endif
+#include <roboutils/io/KM2.h>
+#include <roboutils/chips/km2chip.h>
+#include <roboutils/utils.h>
 
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;

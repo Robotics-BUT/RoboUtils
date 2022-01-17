@@ -18,13 +18,10 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-#include "roboutils/io/GPIO.h"
+#include <roboutils/io/GPIO.h>
 
-#include "roboutils/chips/mcp23017.h"
+#include <roboutils/chips/mcp23017.h>
 
-#if !defined(__linux__)
-# error "This part of library is not compatible with your setup"
-#endif
 
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;

@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -18,8 +19,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-#ifndef FIRMWARE_I2C_H
-#define FIRMWARE_I2C_H
 
 #if !defined(__linux__)
 # error "This part of library is not compatible with your setup"
@@ -154,6 +153,4 @@ namespace RoboUtils::IO {
     public:
         i2c_error() : std::logic_error("I2C: Unrecoverable error") {}
     };
-};
-
-#endif
+}

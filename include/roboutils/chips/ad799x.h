@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of the KAMBot project.
  * 
@@ -16,10 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef AD799X_H
-#define AD799X_H
 
-#if defined(__linux__)
 
 namespace RoboUtils::Chips::Ad799X {
 
@@ -267,7 +265,5 @@ namespace RoboUtils::Chips::Ad799X {
 
 
 
-};
+}
 
-#endif
-#endif /* AD799X_H */

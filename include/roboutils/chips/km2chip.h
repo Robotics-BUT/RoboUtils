@@ -1,3 +1,4 @@
+#pragma once
 /*
  * This file is part of the KAMBot project.
  *
@@ -17,7 +18,6 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
 
 #include <cstdint>
 

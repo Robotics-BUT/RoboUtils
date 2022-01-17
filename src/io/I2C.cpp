@@ -18,7 +18,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-#include "roboutils/io/I2C.h"
+#include <roboutils/io/I2C.h>
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h> // ioctl

@@ -18,13 +18,9 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-#include "roboutils/io/ADC.h"
+#include <roboutils/io/ADC.h>
 
-#include "roboutils/chips/ad799x.h"
-
-#if !defined(__linux__)
-# error "This part of library is not compatible with your setup"
-#endif
+#include <roboutils/chips/ad799x.h>
 
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
