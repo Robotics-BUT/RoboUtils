@@ -8,12 +8,15 @@ namespace RoboUtils {
 
     class Stopwatch {
     public:
-        static void start(const std::string& label = "default");
+        Stopwatch(std::string lbl);
 
-        static long long stop(const std::string& label = "default");
+        ~Stopwatch();
+
+        long long Trigger(bool print = false);
 
     private:
-        static std::map<std::string, long long> measurements;
+        long long Time;
+        std::string Label;
     };
 
 }
