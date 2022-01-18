@@ -51,6 +51,8 @@ namespace RoboUtils::COMM {
 
         std::vector<uint8_t>  receive() const;
 
+        std::string receiveStr() const;
+
         bool bound{false};
 
     private:

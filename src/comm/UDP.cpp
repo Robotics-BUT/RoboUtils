@@ -91,3 +91,11 @@ bool UDP::available() const
     return (FD_ISSET(socketDescriptor, &rfd));
 }
 
+std::string UDP::receiveStr() const
+{
+    if (!available())
+        return {};
+
+    auto r = receive();
+    return { r.begin(), r.end() };
+}
