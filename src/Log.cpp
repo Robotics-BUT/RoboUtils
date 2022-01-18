@@ -13,7 +13,6 @@ using namespace RoboUtils;
 
     string Log::path = "";
     string Log::address = "";
-    uint16_t Log::port = 0;
     COMM::UDP Log::udp = COMM::UDP();
 
     void Log::setPath(string path) {
@@ -22,11 +21,10 @@ using namespace RoboUtils;
         Log::path = buffer.str();
     }
 
-    void Log::setRemoteTarget(string address, int port) {
+    void Log::setRemoteTarget(string address) {
         Log::address = std::move(address);
-        Log::port = static_cast<uint16_t>(port);
 
-        cout << "Logging address was set to: " << Log::address << ":" << port;
+        cout << "Logging address was set to: " << Log::address;
     }
 
     void Log::log(const string& level, const string& message) {
@@ -41,12 +39,12 @@ using namespace RoboUtils;
             file << buffer.str() << endl;
         }
 
-        if (!address.empty() && (port != 0)) {
+        if (!address.empty() ) {
 
             if (!udp.bound)
                 udp.bind(5555);
 
-            udp.sendStr(address, port, buffer.str());
+            udp.sendStr(address, buffer.str());
 
         }
     }

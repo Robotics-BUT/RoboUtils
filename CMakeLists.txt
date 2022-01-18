@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(RoboUtils VERSION 0.1 LANGUAGES CXX)
 
 include(GNUInstallDirs)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 file(GLOB SOURCES src/*.cpp src/io/*.cpp src/comm/*.cpp)
 
 file(GLOB HEADERS include/*.h include/io/*.h include/comm/*.h include/chips/*.h)

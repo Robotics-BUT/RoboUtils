@@ -3,6 +3,9 @@
 //
 
 #include <roboutils/comm/UDP.h>
+#include <roboutils/strings.h>
+
+#include <algorithm>
 
 #include <iostream>
 #include <cstring>
@@ -39,36 +42,25 @@ void UDP::bind(uint16_t port)
     bound = true;
 }
 
-std::vector<uint8_t> UDP::receive() const
+void UDP::send(const std::string &host, const uint8_t *buffer, std::size_t size) const
 {
+    auto spl = split(host, '/');
+
     if (!bound)
         throw std::logic_error("UDP is not bound");
 
-    uint8_t data[1500];
+    if (spl.size() != 2)
+        throw std::logic_error("UDP::SEND host must have port specified <ip>/<port>");
 
+    if (!std::all_of(spl[1].begin(), spl[1].end(), ::isdigit))
+        throw std::logic_error("UDP::SEND host port must be only digits <ip>/<port>");
+
+    //inet_pton(AF_INET, "192.0.2.33", &(sa.sin_addr));
     sockaddr_in ca{};
     memset(&ca, 0, sizeof(ca));
     ca.sin_family = AF_INET;
-    unsigned int clientlen = sizeof(ca);
-
-    auto read = recvfrom(socketDescriptor, data, 1500, 0, (struct sockaddr *) &ca, &clientlen);
-    if (read < 0)
-        throw std::logic_error("Failed to receive UDP packet");
-
-
-    return {data, data + read };
-}
-
-void UDP::send(const std::string &host, uint16_t port, const uint8_t *buffer, std::size_t size) const
-{
-    if (!bound)
-        throw std::logic_error("UDP is not bound");
-
-    sockaddr_in ca{};
-    memset(&ca, 0, sizeof(ca));
-    ca.sin_family = AF_INET;
-    ca.sin_addr.s_addr = inet_addr(host.c_str());
-    ca.sin_port = htons(port);
+    ca.sin_addr.s_addr = inet_addr(spl[0].c_str());
+    ca.sin_port = htons(std::stoi(spl[1]));
     if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &ca, sizeof(ca)) != size)
         throw std::logic_error("Failed to send UDP packet  ");
 }
@@ -91,11 +83,39 @@ bool UDP::available() const
     return (FD_ISSET(socketDescriptor, &rfd));
 }
 
-std::string UDP::receiveStr() const
+std::tuple<std::string, std::vector<uint8_t>> UDP::receive() const
+{
+    if (!bound)
+        throw std::logic_error("UDP is not bound");
+
+    uint8_t data[1500];
+    char str[INET_ADDRSTRLEN];
+
+    sockaddr_in ca{};
+    memset(&ca, 0, sizeof(ca));
+    ca.sin_family = AF_INET;
+    unsigned int clientlen = sizeof(ca);
+
+    auto read = recvfrom(socketDescriptor, data, 1500, 0, (struct sockaddr *) &ca, &clientlen);
+    if (read < 0)
+        throw std::logic_error("Failed to receive UDP packet");
+
+    inet_ntop(AF_INET, &(ca.sin_addr), str, INET_ADDRSTRLEN);
+
+    std::vector<std::string> sender { str, std::to_string(ntohs(ca.sin_port)) };
+    std::vector<uint8_t> result {data, data + read };
+    std::string send = join(sender,"/");
+
+    return std::tie(send, result);
+}
+
+std::tuple<std::string, std::string> UDP::receiveStr() const
 {
     if (!available())
-        return {};
+        return std::tie("","");
 
-    auto r = receive();
-    return { r.begin(), r.end() };
+    auto [ sender, r ] = receive();
+
+    std::string val { r.begin(), r.end() };
+    return std::tie(sender, val );
 }

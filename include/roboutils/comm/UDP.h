@@ -23,6 +23,7 @@ SOFTWARE.
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <tuple>
 
 namespace RoboUtils::COMM {
 
@@ -34,24 +35,18 @@ namespace RoboUtils::COMM {
 
         void bind(uint16_t port);
 
-        void send(const std::string &host, uint16_t port, const uint8_t *buffer, std::size_t size) const;
+        void send(const std::string &host, const uint8_t *buffer, std::size_t size) const;
 
-        template<typename T>
-        void send(const std::string &host, uint16_t port, const T *data) const
+        void sendStr(const std::string &host, const std::string &data) const
         {
-            send(host, port, reinterpret_cast<const uint8_t*>(data), sizeof(T));
-        }
-
-        void sendStr(const std::string &host, uint16_t port, const std::string &data) const
-        {
-            send(host, port, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
+            send(host, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
         }
 
         bool available() const;
 
-        std::vector<uint8_t>  receive() const;
+        std::tuple<std::string, std::vector<uint8_t>> receive() const;
 
-        std::string receiveStr() const;
+        std::tuple<std::string, std::string> receiveStr() const;
 
         bool bound{false};
 

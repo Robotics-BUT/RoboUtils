@@ -31,7 +31,7 @@ namespace RoboUtils {
 
         static void setPath(string path);
 
-        static void setRemoteTarget(string address, int port);
+        static void setRemoteTarget(string address);
 
         template<class T>
         Log &operator<<(const T &value) {
