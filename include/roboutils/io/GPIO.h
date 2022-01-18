@@ -96,8 +96,16 @@ namespace RoboUtils::IO {
         /// \brief Get actual pin value
         ///
         /// \param pins
-        /// \return
+        /// \return true when pin was at high state
         bool get(uint16_t pins) const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Get actual port values
+        ///
+        /// \param pins which pins should be read
+        /// \return set of pins which was at high state
+        uint16_t read(uint16_t pins) const;
+
 
     private:
         /// the bus

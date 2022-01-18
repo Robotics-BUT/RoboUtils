@@ -73,7 +73,7 @@ UDP::~UDP()
 
 void UDP::bind(uint16_t port)
 {
-    SAHelper sah;
+    SAHelper sah(port);
 
     if (::bind(socketDescriptor, (struct sockaddr *) &sah.sa, sizeof(sah.sa)) < 0)
         throw std::logic_error("Failed to bind UDP packet");
@@ -104,8 +104,12 @@ bool UDP::available() const
     FD_SET(socketDescriptor, &rfd);
     tv.tv_sec = 0;
     tv.tv_usec = 0;
-    if (select(socketDescriptor + 1, &rfd, nullptr, nullptr, &tv) < 0)
+    int cnt = select(socketDescriptor + 1, &rfd, nullptr, nullptr, &tv);
+    if (cnt < 0)
         throw std::logic_error("Failed to select");
+
+    if (cnt == 0)
+        return false;
 
     return (FD_ISSET(socketDescriptor, &rfd));
 }

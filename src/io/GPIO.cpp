@@ -79,3 +79,12 @@ bool GPIO::get(uint16_t pins) const
 
     return (pins & p) != 0;
 }
+
+uint16_t GPIO::read(uint16_t pins) const
+{
+    uint16_t p = 0;
+    if (!i2c->read(chipAddress, +Mcp23017::Reg::GPIO, &p, true))
+        throw gpio_error();
+
+    return p & pins;
+}
