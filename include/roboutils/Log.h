@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <string>
-#include "roboutils/UDP.h"
+#include "roboutils/comm/UDP.h"
 
 namespace RoboUtils {
     using namespace std;
@@ -31,7 +31,7 @@ namespace RoboUtils {
 
         static void setPath(string path);
 
-        static void setRemoteTarget(string address, int port);
+        static void setRemoteTarget(string address);
 
         template<class T>
         Log &operator<<(const T &value) {
@@ -58,9 +58,9 @@ namespace RoboUtils {
         static string path;
         static string address;
         static uint16_t port;
-        static UDP udp;
+        static COMM::UDP udp;
 
-        static void log(string level, string message);
+        static void log(const string& level, const string& message);
 
         static string time();
     };

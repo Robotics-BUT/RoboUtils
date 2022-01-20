@@ -6,15 +6,14 @@
 #include <sstream>
 #include <fstream>
 #include <utility>
-#include "roboutils/Log.h"
-#include "roboutils/utils.h"
+#include <roboutils/Log.h>
+#include <roboutils/utils.h>
 
-namespace RoboUtils {
+using namespace RoboUtils;
 
     string Log::path = "";
     string Log::address = "";
-    uint16_t Log::port = 0;
-    UDP Log::udp = UDP(5555);
+    COMM::UDP Log::udp = COMM::UDP();
 
     void Log::setPath(string path) {
         ostringstream buffer;
@@ -22,34 +21,32 @@ namespace RoboUtils {
         Log::path = buffer.str();
     }
 
-    void Log::setRemoteTarget(string address, int port) {
+    void Log::setRemoteTarget(string address) {
         Log::address = std::move(address);
-        Log::port = static_cast<uint16_t>(port);
 
-        cout << "Logging address was set to: " << Log::address << ":" << port;
+        cout << "Logging address was set to: " << Log::address;
     }
 
-    void Log::log(string level, string message) {
+    void Log::log(const string& level, const string& message) {
         std::ostringstream buffer;
 
         buffer << "[" << level << "]: " << Log::time() << " - " << message;
 
         cout << buffer.str() << endl;
 
-        if (Log::path.empty()) {
-            cout << "Log: Logging path was not set." << endl;
-            return;
+        if (!path.empty()) {
+            ofstream file(path, ios_base::app);         // RAII: file will be closed automatically
+            file << buffer.str() << endl;
         }
 
-        ofstream file(Log::path, ios_base::app);
-        file << buffer.str() << endl;
-        file.close();
+        if (!address.empty() ) {
 
-        if (Log::address.empty() || Log::port == 0) {
-            return;
+            if (!udp.bound)
+                udp.bind(5555);
+
+            udp.sendStr(address, buffer.str());
+
         }
-
-        Log::udp.send(address.c_str(), port, (unsigned char *) buffer.str().c_str(), buffer.str().size());
     }
 
     string Log::time() {
@@ -76,5 +73,3 @@ namespace RoboUtils {
     Log Log::debug() {
         return Log("DEBUG");
     }
-
-};

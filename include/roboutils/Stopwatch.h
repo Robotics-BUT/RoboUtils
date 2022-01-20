@@ -4,18 +4,21 @@
 #include <string>
 #include <map>
 
-using std::string;
-
 namespace RoboUtils {
+
     class Stopwatch {
     public:
-        static void start(string label = "default");
+        Stopwatch(std::string lbl);
 
-        static long long stop(string label = "default");
+        ~Stopwatch();
+
+        long long Trigger(bool print = false);
 
     private:
-        static std::map<string, long long> measurements;
+        long long Time;
+        std::string Label;
     };
-};
+
+}
 
 #endif

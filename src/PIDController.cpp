@@ -27,7 +27,7 @@ namespace RoboUtils {
         let error = setpoint - currentValue;
 
         integrator += error * sampleTimeMs;
-        integrator = saturatef(integrator, -absoluteMaximumAction, absoluteMaximumAction);
+        integrator = saturate(integrator, -absoluteMaximumAction, absoluteMaximumAction);
 
         let integral = i * integrator;
 
@@ -35,6 +35,6 @@ namespace RoboUtils {
 
         previousError = error;
 
-        return saturatef(p * (error + integral + derivative), -absoluteMaximumAction, absoluteMaximumAction);
+        return saturate(p * (error + integral + derivative), -absoluteMaximumAction, absoluteMaximumAction);
     }
 };

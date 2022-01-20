@@ -1,32 +1,30 @@
 #include <iostream>
+#include <utility>
 #include "roboutils/Stopwatch.h"
 #include "roboutils/utils.h"
 
-namespace RoboUtils {
+using namespace RoboUtils;
+using namespace std;
 
-    using namespace std;
+Stopwatch::Stopwatch(std::string lbl)
+ : Time(millis()), Label(std::move(lbl))
+{
+}
 
-    map<string, long long> Stopwatch::measurements = map<string, long long>();
+Stopwatch::~Stopwatch()
+{
+    Trigger(true);
+}
 
-    void Stopwatch::start(string label) {
-        measurements[label] = millis();
-    }
+long long Stopwatch::Trigger(bool print)
+{
+    auto stop = millis();
+    auto diff = stop - Time;
+    Time = stop;
 
-    long long Stopwatch::stop(string label) {
-        auto stop = millis();
-        auto start = measurements[label];
+    if (print)
+        std::cout << "Measured time for label: " << Label << " is: " << diff << " ms" << std::endl;
 
-        if (start == 0) {
-            measurements[label] = stop;
+    return diff;
+}
 
-            cout << "Stopwatch: stop called before start." << endl;
-        }
-
-        let diff = stop - measurements[label];
-        measurements[label] = stop;
-
-        cout << "Measured time for label: " << label << " is: " << diff << " ms" << endl;
-
-        return diff;
-    }
-};

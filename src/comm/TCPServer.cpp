@@ -2,10 +2,14 @@
 // Created by Matous Hybl on 4/9/19.
 //
 
+#include <roboutils/comm/TCPServer.h>
+
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
-#include "roboutils/TCPServer.h"
+
+
+using namespace RoboUtils::COMM;
 
 TCPServer::TCPServer(uint16_t port) {
     sockaddr_in address = {};
@@ -13,21 +17,21 @@ TCPServer::TCPServer(uint16_t port) {
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(port);
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (fd < 0) {
         std::cout << "Failed to open socket." << std::endl;
-        throw -1;
+        throw -1; // FIXME WRONG DESIGN
     }
 
     if (bind(fd, (sockaddr *) &address, sizeof(address)) != 0) {
         std::cout << "Failed to bind socket." << std::endl;
-        throw -1;
+        throw -1; // FIXME WRONG DESIGN
     }
 
     if (listen(fd, 5) != 0) {
         std::cout << "Failed to listen socket." << std::endl;
-        throw -1;
+        throw -1; // FIXME WRONG DESIGN
     }
 }
 
