@@ -31,18 +31,64 @@ ADC::ADC(I2C *i2c)
     chipAddress = ADDR_AD799X_0_L;
 }
 
-uint16_t ADC::readChannel(uint8_t channel)
+// mode 2
+std::map<int, uint16_t> ADC::Mode2Measure(int channel)
 {
-
-    uint16_t channelAndValue;
-    if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &channelAndValue, false))
+    uint16_t reg;
+    if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &reg, false))
         throw adc_error();
 
-    uint16_t readChannel = Ad799X::RESULT::FromCHAN(channelAndValue);
+    return { {
+        Ad799X::RESULT::FromCHAN(reg),
+        Ad799X::RESULT::FromVALUE(reg) }
+    };
+}
 
-    // FIXME test if actually true
-    if (readChannel != channel)
-        throw std::logic_error("ADC: received result channel is not equal to requested channel");
+std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
+{
+    std::map<int, uint16_t> map;
 
-    return Ad799X::RESULT::FromVALUE(channelAndValue );
+#if 1
+    uint16_t reg;
+
+    for (auto channel : channels) {
+
+        if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &reg, false))
+            throw adc_error();
+
+        map.insert({
+               Ad799X::RESULT::FromCHAN(reg),
+               Ad799X::RESULT::FromVALUE(reg)
+       });
+    }
+
+#else
+    // FIXME nasledujici kod by mel fungovat na dva i2c trnsacty dle DS ale nejede. Zrejme nepublikovana errata
+
+    std::vector<uint16_t> data(channels.size(), 0);
+    uint16_t cfg = 0;//Ad799X::CONFIG::FLTR;
+
+    for (auto channel : channels)
+        cfg |= Ad799X::CONFIG::ToCh(channel);
+
+    if (!i2c->write(chipAddress, +Ad799X::Reg::CONFIG, cfg, false))
+        throw adc_error();
+
+    if (!i2c->read(chipAddress, +Ad799X::Reg::RESULT_SEQ, data.data(), (int)data.size(), false))
+        throw adc_error();
+
+    for (auto i : data)
+        map.insert({
+            Ad799X::RESULT::FromCHAN(i),
+            Ad799X::RESULT::FromVALUE(i)
+        });
+#endif
+
+    return map;
+}
+
+void ADC::setCycleMode(int divisor)
+{
+    if (!i2c->write(chipAddress, +Ad799X::Reg::CYCLE, (uint8_t)0x00, false))
+        throw adc_error();
 }

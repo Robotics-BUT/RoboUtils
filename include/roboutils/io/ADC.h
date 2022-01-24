@@ -21,13 +21,19 @@ SOFTWARE.
 
 #include <roboutils/io/I2C.h>
 
+#include <vector>
+#include <map>
+
 namespace RoboUtils::IO {
 
     class ADC {
     public:
         explicit ADC(I2C *i2c);
 
-        uint16_t readChannel(uint8_t channel);
+        std::map<int, uint16_t> Mode2Measure(int channel);
+        std::map<int, uint16_t> Mode2Measure(const std::vector<int>& channels);
+
+        void setCycleMode(int divisor);
 
     private:
         I2C *i2c;
