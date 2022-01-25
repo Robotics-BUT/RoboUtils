@@ -24,7 +24,7 @@ using namespace RoboUtils;
     void Log::setRemoteTarget(string address) {
         Log::address = std::move(address);
 
-        cout << "Logging address was set to: " << Log::address;
+        cout << "Logging address was set_ to: " << Log::address;
     }
 
     void Log::log(const string& level, const string& message) {

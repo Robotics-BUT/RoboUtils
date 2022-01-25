@@ -32,16 +32,16 @@ namespace RoboUtils::IO {
     ///  I2C bus{"/dev/i2c-1"};
     ///  GPIO gpio{ &bus };
     ///
-    ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set PA1...PA3 to output
-    ///  gpio.input(RUN | Pin::PA6, true);                   // set pins PA7 and PA6 to input with pullup
+    ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set_ PA1...PA3 to output
+    ///  gpio.input(RUN | Pin::PA6, true);                   // set_ pins PA7 and PA6 to input with pullup
     ///
     ///  while(gpio.get(RUN)) {                              // loo until button on PA7 press
-    ///      gpio.high(Pin::PA1);                            // set PA1 to high level (LED off)
+    ///      gpio.high(Pin::PA1);                            // set_ PA1 to high level (LED off)
     ///      delay(500);
-    ///      gpio.low(Pin::PA1);                             // set PA1 to low level (LED on)
+    ///      gpio.low(Pin::PA1);                             // set_ PA1 to low level (LED on)
     ///      delay(500);
     ///      gpio.toggle(Pin::PA2);                          // change value of PA2 (blink)
-    ///      gpio.set(Pin::PA3, gpio.get(Pin::PA6));         // copy value of PA6 to PA3
+    ///      gpio.set_(Pin::PA3, gpio.get(Pin::PA6));         // copy value of PA6 to PA3
     ///  }
     /// \endcode
     class GPIO {
@@ -103,7 +103,7 @@ namespace RoboUtils::IO {
         /// \brief Get actual port values
         ///
         /// \param pins which pins should be read
-        /// \return set of pins which was at high state
+        /// \return set_ of pins which was at high state
         uint16_t read(uint16_t pins) const;
 
 
