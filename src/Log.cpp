@@ -2,74 +2,79 @@
 // Created by Matous Hybl on 2018-10-12.
 //
 
-#include <cstdio>
 #include <sstream>
-#include <fstream>
-#include <utility>
 #include <roboutils/Log.h>
-#include "roboutils/util/timing.h"
 
 using namespace RoboUtils;
 
-    string Log::path = "";
-    string Log::address = "";
-    COMM::UDP Log::udp = COMM::UDP();
 
-    void Log::setPath(string path) {
-        ostringstream buffer;
-        buffer << path << "/LBot-" << Log::time() << ".log";
-        Log::path = buffer.str();
+const Log Log::error = Log("ERROR");
+const Log Log::warning = Log("WARNING");
+const Log Log::info = Log("INFO");
+const Log Log::debug = Log("DEBUG");
+std::function<void(const std::string &)> Log::writer{};
+
+constexpr Log::Log(const char *lvl)
+ : level_(lvl)
+{
+}
+
+void Log::log(const std::string& message) const
+{
+    if (writer)
+        writer("[" + std::string(level_) + "]: " + Log::time() + " - " + message);
+}
+
+void Log::log(const LogLine& message) const
+{
+    if (writer)
+        writer("[" + std::string(level_) + "]: " + message.time_ + " - " + message.buffer_.str());
+}
+
+std::string Log::time()
+{
+    time_t rawTime;
+    ::time(&rawTime);
+
+    std::string timeString = ctime(&rawTime);
+
+    // remove newline
+    return timeString.substr(0, timeString.size() - 1);
+}
+
+// gran time in constructor
+LogLine::LogLine(const Log * parent)
+  : parent_(parent) , time_(Log::time())
+{
+}
+
+LogLine::LogLine(LogLine &line)
+  : parent_(line.parent_), time_(line.time_)
+{
+    buffer_.str(line.buffer_.str());
+    line.buffer_.str(std::string());
+}
+
+
+LogLine::~LogLine()
+{
+    // flush at destructor in the case it has not been flushed
+    if (!buffer_.str().empty()) {
+        parent_->log(*this);
+        buffer_.str(std::string());
+    }
+}
+
+// flush on endl or flush
+LogLine &LogLine::operator<<(std::ostream &(*manipulator)(std::ostream &))
+{
+    if (manipulator == static_cast<std::ostream &(*)(std::ostream &)>(std::flush) ||
+        manipulator == static_cast<std::ostream &(*)(std::ostream &)>(std::endl)) {
+
+        parent_->log(*this);
+        buffer_.str(std::string());
     }
 
-    void Log::setRemoteTarget(string address) {
-        Log::address = std::move(address);
+    return *this;
+}
 
-        cout << "Logging address was set to: " << Log::address;
-    }
-
-    void Log::log(const string& level, const string& message) {
-        std::ostringstream buffer;
-
-        buffer << "[" << level << "]: " << Log::time() << " - " << message;
-
-        cout << buffer.str() << endl;
-
-        if (!path.empty()) {
-            ofstream file(path, ios_base::app);         // RAII: file will be closed automatically
-            file << buffer.str() << endl;
-        }
-
-        if (!address.empty() ) {
-
-            if (!udp.bound)
-                udp.bind(5555);
-
-            udp.sendStr(address, buffer.str());
-
-        }
-    }
-
-    string Log::time() {
-        std::string timeString;
-        time_t rawTime;
-        ::time(&rawTime);
-        timeString = ctime(&rawTime);
-        // remove newline
-        return timeString.substr(0, timeString.size() - 1);
-    }
-
-    Log Log::error() {
-        return Log("ERROR");
-    }
-
-    Log Log::warning() {
-        return Log("WARNING");
-    }
-
-    Log Log::info() {
-        return Log("INFO");
-    }
-
-    Log Log::debug() {
-        return Log("DEBUG");
-    }

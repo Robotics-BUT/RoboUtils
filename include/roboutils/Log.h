@@ -9,61 +9,68 @@
 
 #include <iostream>
 #include <string>
+#include <functional>
+#include <sstream>
 #include "roboutils/comm/UDP.h"
 
 namespace RoboUtils {
-    using namespace std;
 
-    class Log {
+    class Log;
+
+    class LogLine {
+
+
+        friend class Log;
     public:
-
-        Log(string level) {
-            this->level = std::move(level);
-        }
-
-        static Log error();
-
-        static Log warning();
-
-        static Log info();
-
-        static Log debug();
-
-        static void setPath(string path);
-
-        static void setRemoteTarget(string address);
+        explicit LogLine(const Log * parent);
+        LogLine(LogLine &line);
+        ~LogLine();
 
         template<class T>
-        Log &operator<<(const T &value) {
-            buffer << value;
-
+        LogLine &operator<<(const T &value)  {
+            buffer_ << value;
             return *this;
         }
 
-        Log &operator<<(std::ostream &(*manipulator)(std::ostream &)) {
-            if (manipulator == static_cast<std::ostream &(*)(std::ostream &)>(std::flush) ||
-                manipulator == static_cast<std::ostream &(*)(std::ostream &)>(std::endl)) {
-                Log::log(level, buffer.str());
-
-                buffer.flush();
-            }
-
-            return *this;
-        }
+        LogLine &operator<<(std::ostream &(*manipulator)(std::ostream &));
 
     private:
-        stringstream buffer;
-        string level;
-
-        static string path;
-        static string address;
-        static uint16_t port;
-        static COMM::UDP udp;
-
-        static void log(const string& level, const string& message);
-
-        static string time();
+        std::stringstream buffer_{};
+        const Log *parent_{nullptr};
+        std::string time_;
     };
+
+    class Log {
+        friend class LogLine;
+
+    public:
+        // TODO this should be constexpr in the future ...
+        static const Log error;
+        static const Log warning;
+        static const Log info;
+        static const Log debug;
+
+        static std::function<void(const std::string &)> writer;
+
+        explicit constexpr Log(const char *level);
+
+        template<class T>
+        LogLine operator<<(const T &value) const {
+            LogLine line(this);
+            line << value;
+            return line;
+        }
+
+        void log(const std::string& message) const;
+        void log(const LogLine& message) const;
+
+    private:
+        const char * level_;
+
+        static std::string time();
+    };
+
+
 }
 
 
