@@ -44,6 +44,10 @@ I2C::~I2C()
 
 void I2C::open(const std::string &busFile)
 {
+    if (i2cDescriptor > 0) {
+        close(i2cDescriptor);
+        i2cDescriptor = 0;
+    }
     i2cDescriptor = ::open(busFile.c_str(), O_RDWR);
     if (i2cDescriptor <= 0)
         throw i2c_error();
