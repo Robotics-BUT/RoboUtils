@@ -3,7 +3,7 @@
 //
 
 #include <roboutils/comm/UDP.h>
-#include <roboutils/strings.h>
+#include "roboutils/util/strings.h"
 
 #include <algorithm>
 
