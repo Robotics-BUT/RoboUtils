@@ -33,16 +33,20 @@ SOFTWARE.
 
 using namespace RoboUtils::IO;
 
-I2C::I2C(const std::string &busFile)
-{
-    // FIXME: Wrong design, breaking constructor rule - only memory allocation allowed, no
-    i2cDescriptor = open(busFile.c_str(), O_RDWR);
-}
 
 I2C::~I2C()
 {
-    // FIXME: Do not close when wrongly opened
-    close(i2cDescriptor);
+    if (i2cDescriptor > 0) {
+        close(i2cDescriptor);
+        i2cDescriptor = 0;
+    }
+}
+
+void I2C::open(const std::string &busFile)
+{
+    i2cDescriptor = ::open(busFile.c_str(), O_RDWR);
+    if (i2cDescriptor <= 0)
+        throw i2c_error();
 }
 
 template <typename T>
