@@ -7,9 +7,7 @@
 #include "roboutils/util/timing.h"
 #include "roboutils/util/swift.h"
 
-using namespace RoboUtils;
-
-void repeatAsynchronously(unsigned int periodMs, const std::function<bool(void)>& fun)
+void RoboUtils::repeatAsynchronously(unsigned int periodMs, const std::function<bool(void)>& fun)
 {
     std::thread([periodMs, fun]() {
         bool ret = true;

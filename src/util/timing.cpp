@@ -18,3 +18,18 @@ void RoboUtils::delay(long ms)
 {
     usleep(ms * 1000);
 }
+
+bool RoboUtils::expired(long long *last_event, long delay, long long ms)
+{
+    if (!last_event)
+        return false;
+
+    if (ms < 0)
+        ms = millis();
+
+    if (ms < (*last_event + delay))
+        return false;
+
+    *last_event = ms;
+    return true;
+}

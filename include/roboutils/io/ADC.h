@@ -30,7 +30,16 @@ namespace RoboUtils::IO {
     public:
         explicit ADC(I2C *i2c);
 
+        /// \brief Measure single value on ADC channel
+        ///
+        /// \param channel the channel number (0-7)
+        /// \return the map with measured value
         std::map<int, uint16_t> Mode2Measure(int channel);
+
+        /// \brief Measure multiple values on multiple channels
+        ///
+        /// \param channels all channels to be measured
+        /// \return the map set up with measured values
         std::map<int, uint16_t> Mode2Measure(const std::vector<int>& channels);
 
         void setCycleMode(int divisor);
