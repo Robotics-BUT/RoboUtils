@@ -119,6 +119,9 @@ std::tuple<std::string, std::vector<uint8_t>> UDP::receive() const
     if (!bound)
         throw std::logic_error("UDP is not bound");
 
+    if (!available())
+        return {};
+
     SAHelper sa;
     unsigned int clientlen = sizeof(sa.sa);
     std::vector<uint8_t> result(1500);

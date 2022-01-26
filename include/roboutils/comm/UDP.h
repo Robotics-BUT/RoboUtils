@@ -29,23 +29,46 @@ namespace RoboUtils::COMM {
 
     class UDP {
     public:
+        /// \brief Create the UDP object
         UDP();
 
+        /// \brief Destroy the UDP object
         ~UDP();
 
-        void bind(uint16_t port);
+        /// \brief Bind to specified UDP port
+        ///
+        /// \param port the port to bind to (default is automatic)
+        void bind(uint16_t port = 0);
 
+        /// \brief Send data to specified host
+        ///
+        /// \param host the host identification ip/port
+        /// \param buffer the data to send
+        /// \param size size of data to send
         void send(const std::string &host, const uint8_t *buffer, std::size_t size) const;
 
+        /// \brief Send text data to specified host
+        ///
+        /// \param host the host identification ip/port
+        /// \param data text to be sent
         void sendStr(const std::string &host, const std::string &data) const
         {
             send(host, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
         }
 
+        /// \brief Return if any packet is waiting for receive
+        ///
+        /// \return true, if there is waiting packet to receive
         bool available() const;
 
+        /// \brief Receive data from remote
+        ///
+        /// \return auto [remote, data]
         std::tuple<std::string, std::vector<uint8_t>> receive() const;
 
+        /// \brief Receive text from remote
+        ///
+        /// \return auto [remote, text]
         std::tuple<std::string, std::string> receiveStr() const;
 
         bool bound{false};
