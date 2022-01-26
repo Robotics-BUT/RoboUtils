@@ -122,7 +122,7 @@ namespace RoboUtils::IO {
         /// \param r
         /// \param rn
         /// \return true if there is no error during transfer
-        bool transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) const;
+        bool transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief

@@ -86,7 +86,7 @@ bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clea
 // PRIVATE
 
 //#define LOG // TODO log later using matous's engine
-bool I2C::transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) const
+bool I2C::transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const
 {
     std::lock_guard <std::mutex> lock(mutex);
 
