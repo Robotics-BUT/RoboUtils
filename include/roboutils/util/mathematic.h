@@ -1,14 +1,11 @@
 //
 // Created by Matous Hybl on 02/10/2018.
 //
+#pragma once
 
 #include <cstdint>
 
-#ifndef FIRMWARE_MATH_H
-#define FIRMWARE_MATH_H
-
 namespace RoboUtils {
-#define PI 3.14159f
 
     template<typename T>
     static inline constexpr T saturate(const T value, const T minimum, const T maximum)
@@ -37,5 +34,3 @@ namespace RoboUtils {
     }
 
 }
-
-#endif //FIRMWARE_MATH_H

@@ -7,20 +7,19 @@
 #include "roboutils/util/timing.h"
 #include "roboutils/util/swift.h"
 
-namespace RoboUtils {
-    void repeatAsynchronously(unsigned int periodMs, const std::function<void(void)>& fun) {
-        std::thread([periodMs, fun]() {
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wmissing-noreturn"
-            while (true) {
-                let start = millis();
-                fun();
-                let delayTime = periodMs - (millis() - start);
-                if (delayTime > 0) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(periodMs));
-                }
+using namespace RoboUtils;
+
+void repeatAsynchronously(unsigned int periodMs, const std::function<bool(void)>& fun)
+{
+    std::thread([periodMs, fun]() {
+        bool ret = true;
+        while (ret) {
+            let start = millis();
+            ret = fun();
+            let delayTime = periodMs - (millis() - start);
+            if (delayTime > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(periodMs));
             }
-//#pragma clang diagnostic pop
-        }).detach();
-    }
+        }
+    }).detach();
 }
