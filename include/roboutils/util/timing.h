@@ -2,16 +2,12 @@
 // Created by Matous Hybl on 2018-10-14.
 //
 
-#ifndef FIRMWARE_UTILS_H
-#define FIRMWARE_UTILS_H
+#pragma once
 
 #include <chrono>
 #include <unistd.h>
 
 namespace RoboUtils {
-#define var auto
-#define let const auto
-#define guard(condition) if (condition) {}
 
     inline long long millis() {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -23,5 +19,3 @@ namespace RoboUtils {
         usleep(ms * 1000);
     }
 }
-
-#endif //FIRMWARE_UTILS_H

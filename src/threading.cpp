@@ -4,7 +4,8 @@
 
 #include <thread>
 #include "roboutils/threading.h"
-#include "roboutils/utils.h"
+#include "roboutils/util/timing.h"
+#include "roboutils/util/swift.h"
 
 namespace RoboUtils {
     void repeatAsynchronously(unsigned int periodMs, const std::function<void(void)>& fun) {

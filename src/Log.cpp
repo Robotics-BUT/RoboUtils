@@ -7,7 +7,7 @@
 #include <fstream>
 #include <utility>
 #include <roboutils/Log.h>
-#include <roboutils/utils.h>
+#include "roboutils/util/timing.h"
 
 using namespace RoboUtils;
 

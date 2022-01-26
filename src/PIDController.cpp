@@ -2,10 +2,12 @@
 // Created by Matous Hybl on 2018-10-28.
 //
 
-#include <cmath>
-#include "roboutils/utils.h"
 #include "roboutils/PIDController.h"
-#include "roboutils/math.h"
+
+#include <cmath>
+#include "roboutils/util/swift.h"
+#include "roboutils/util/timing.h"
+#include "roboutils/util/mathematic.h"
 
 namespace RoboUtils {
 

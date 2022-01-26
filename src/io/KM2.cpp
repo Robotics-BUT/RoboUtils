@@ -19,7 +19,7 @@ SOFTWARE.
 
 #include <roboutils/io/KM2.h>
 #include <roboutils/chips/km2chip.h>
-#include <roboutils/utils.h>
+#include "roboutils/util/timing.h"
 
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
