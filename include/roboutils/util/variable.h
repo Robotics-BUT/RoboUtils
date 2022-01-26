@@ -20,14 +20,14 @@ namespace RoboUtils {
             value = val;
         }
 
-        T get() {
+        T get() const {
             std::lock_guard<std::mutex> lock(mutex);
             return value;
         }
 
     private:
         T value;
-        std::mutex mutex;
+        mutable std::mutex mutex;
     };
 
 }
