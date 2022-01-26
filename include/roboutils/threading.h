@@ -9,6 +9,6 @@
 
 namespace RoboUtils {
     void repeatAsynchronously(unsigned int periodMs, const std::function<void(void)> &fun);
-};
+}
 
 #endif //FIRMWARE_THREADING_H

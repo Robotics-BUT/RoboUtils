@@ -25,6 +25,8 @@ SOFTWARE.
 #include <fcntl.h> // O_RDWR
 #include <unistd.h>  // open, close
 
+#include <vector>
+
 #if !defined(__linux__)
 # error "This part of library is not compatible with your setup"
 #endif
@@ -137,7 +139,7 @@ bool I2C::transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const
 
 bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size, bool litleEndian  ) const
 {
-    uint8_t buff[1 + size * typeSize];
+    std::vector<uint8_t> buff(1+size * typeSize);
     buff[0] = registerAddress;
 
     if (litleEndian) {
@@ -154,16 +156,17 @@ bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int
 
     }
 
-    return transact_(chipAddress, buff, 1 + size * typeSize, nullptr, 0);
+    return transact_(chipAddress, buff.data(), (int)buff.size(), nullptr, 0);
 }
 
 
 bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size, bool litleEndian  ) const
 {
-    uint8_t buff[size * typeSize];
+    std::vector<uint8_t> buff(size * typeSize);
+
     buff[0] = registerAddress;
 
-    if (!transact_(chipAddress, buff, 1 , buff, size * typeSize))
+    if (!transact_(chipAddress, buff.data(), 1 , buff.data(), (int)buff.size()))
         return false;
 
     if (litleEndian) {

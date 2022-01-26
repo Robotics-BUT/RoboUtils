@@ -22,6 +22,6 @@ namespace RoboUtils {
     inline void delay(long ms) {
         usleep(ms * 1000);
     }
-};
+}
 
 #endif //FIRMWARE_UTILS_H

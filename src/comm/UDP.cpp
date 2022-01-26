@@ -88,7 +88,7 @@ void UDP::send(const std::string &host, const uint8_t *buffer, std::size_t size)
 
     SAHelper sa(host);
 
-    if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &sa.sa, sizeof(sa.sa)) != size)
+    if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &sa.sa, sizeof(sa.sa)) != (ssize_t) size)
         throw std::logic_error("Failed to send UDP packet  ");
 }
 

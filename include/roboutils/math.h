@@ -36,6 +36,6 @@ namespace RoboUtils {
         return value + saturate(desired - value, -limit, limit);
     }
 
-};
+}
 
 #endif //FIRMWARE_MATH_H

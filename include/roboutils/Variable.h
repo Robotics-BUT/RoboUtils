@@ -35,7 +35,7 @@ namespace RoboUtils {
         std::lock_guard<std::mutex> lock(mutex);
         return value;
     }
-};
+}
 
 
 #endif //FIRMWARE_VARIABLE_H

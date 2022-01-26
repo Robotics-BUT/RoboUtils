@@ -24,7 +24,7 @@ namespace RoboUtils {
         unsigned int sampleTimeMs = 0;
         float absoluteMaximumAction = 0;
     };
-};
+}
 
 
 #endif //FIRMWARE_PIDCONTROLLER_H

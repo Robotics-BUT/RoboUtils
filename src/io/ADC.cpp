@@ -89,6 +89,6 @@ std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
 
 void ADC::setCycleMode(int divisor)
 {
-    if (!i2c->write(chipAddress, +Ad799X::Reg::CYCLE, (uint8_t)0x00, false))
+    if (!i2c->write(chipAddress, +Ad799X::Reg::CYCLE, (uint8_t)divisor, false))
         throw adc_error();
 }

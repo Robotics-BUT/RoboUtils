@@ -64,7 +64,7 @@ namespace RoboUtils {
 
         static string time();
     };
-};
+}
 
 
 #endif //FIRMWARE_LOG_H
