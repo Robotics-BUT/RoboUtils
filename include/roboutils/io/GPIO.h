@@ -29,8 +29,10 @@ namespace RoboUtils::IO {
     /// \code
     ///  auto RUN = Pin::PA7;
     ///
-    ///  I2C bus{"/dev/i2c-1"};
-    ///  GPIO gpio{ &bus };
+    ///  I2C bus;
+    ///  GPIO gpio{bus};
+    ///
+    ///  bus.open("/dev/i2c-1");
     ///
     ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set PA1...PA3 to output
     ///  gpio.input(RUN | Pin::PA6, true);                   // set pins PA7 and PA6 to input with pullup
@@ -52,7 +54,25 @@ namespace RoboUtils::IO {
         ///
         /// \param i2c the bus to communicate over
         /// \param chipIndex the index of the chip on bus
-        explicit GPIO(I2C *i2c, int chipIndex = 0);
+        explicit GPIO(const I2C &i2c, int chipIndex = 0);
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if chip is already present
+        operator bool() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Associated bus
+        ///
+        /// \return the associated bus
+        const I2C &bus() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Chip address
+        ///
+        /// \return the current chip address
+        int chip() const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Set selected pins to input mode
@@ -109,10 +129,10 @@ namespace RoboUtils::IO {
 
     private:
         /// the bus
-        I2C *i2c = nullptr;
+        const I2C &i2c_;
 
         /// original chip address
-        int chipAddress;
+        const int chipAddress_;
     };
 
     class gpio_error : public std::logic_error {

@@ -1,75 +1,48 @@
 //
 // Created by Matous Hybl on 2018-10-12.
 //
-
-#include <cstdio>
-#include <sstream>
-#include <fstream>
-#include <utility>
 #include <roboutils/Log.h>
-#include <roboutils/utils.h>
 
 using namespace RoboUtils;
 
-    string Log::path = "";
-    string Log::address = "";
-    COMM::UDP Log::udp = COMM::UDP();
+const Log Log::error = Log("ERROR");
+const Log Log::warning = Log("WARNING");
+const Log Log::info = Log("INFO");
+const Log Log::debug = Log("DEBUG");
+std::function<void(const std::string &)> Log::writer{};
 
-    void Log::setPath(string path) {
-        ostringstream buffer;
-        buffer << path << "/LBot-" << Log::time() << ".log";
-        Log::path = buffer.str();
-    }
+// gran time in constructor
+Log::LogLine::LogLine(const Log & parent)
+  : std::basic_ios<char>{}, std::stringstream{""}
+{
+    time_t rawTime;
+    ::time(&rawTime);
 
-    void Log::setRemoteTarget(string address) {
-        Log::address = std::move(address);
+    std::string timeString = ctime(&rawTime);
 
-        cout << "Logging address was set to: " << Log::address;
-    }
+    // remove newline
+    timeString.pop_back();
 
-    void Log::log(const string& level, const string& message) {
-        std::ostringstream buffer;
+    *this << "[" << parent.level_ << "]:" << timeString << " - ";
+}
 
-        buffer << "[" << level << "]: " << Log::time() << " - " << message;
+Log::LogLine::LogLine(LogLine &line)
+  : std::basic_ios<char>{}, std::stringstream{line.str()}
+{
+    // delete the original
+    line.str(std::string());
+}
 
-        cout << buffer.str() << endl;
 
-        if (!path.empty()) {
-            ofstream file(path, ios_base::app);         // RAII: file will be closed automatically
-            file << buffer.str() << endl;
-        }
+Log::LogLine::~LogLine()
+{
+    // flush at destructor in the case it has not been flushed
+    if (str().empty())
+        return;
 
-        if (!address.empty() ) {
+    auto w = Log::writer;
+    if (w)
+        w(this->str());
+    str(std::string());
 
-            if (!udp.bound)
-                udp.bind(5555);
-
-            udp.sendStr(address, buffer.str());
-
-        }
-    }
-
-    string Log::time() {
-        std::string timeString;
-        time_t rawTime;
-        ::time(&rawTime);
-        timeString = ctime(&rawTime);
-        // remove newline
-        return timeString.substr(0, timeString.size() - 1);
-    }
-
-    Log Log::error() {
-        return Log("ERROR");
-    }
-
-    Log Log::warning() {
-        return Log("WARNING");
-    }
-
-    Log Log::info() {
-        return Log("INFO");
-    }
-
-    Log Log::debug() {
-        return Log("DEBUG");
-    }
+}

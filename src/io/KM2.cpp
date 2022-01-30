@@ -19,22 +19,37 @@ SOFTWARE.
 
 #include <roboutils/io/KM2.h>
 #include <roboutils/chips/km2chip.h>
-#include <roboutils/utils.h>
+#include "roboutils/util/timing.h"
 
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
 
-KM2::KM2(I2C *aBus, int aChipAddress)
+KM2::KM2(const I2C &aBus, int aChipAddress)
+ : bus_(aBus), chipAddress_(aChipAddress)
 {
-    bus = aBus;
-    chipAddress = aChipAddress;
+}
+
+KM2::operator bool() const
+{
+    uint8_t reg;
+    return bus_.read(chipAddress_, +Km2::Reg::SPEED, &reg);
+}
+
+const I2C &KM2::bus() const
+{
+    return bus_;
+}
+
+int KM2::chip() const
+{
+    return chipAddress_;
 }
 
 void KM2::drive(int left, int right) const
 {
     int16_t speed[2] {(int16_t)left,(int16_t)right};
 
-    if (!bus->write(chipAddress, +Km2::Reg::SPEED, speed, 2, true))
+    if (!bus_.write(chipAddress_, +Km2::Reg::SPEED, speed, 2, Endian::Little))
         throw km2_error();
 }
 
@@ -42,7 +57,7 @@ std::tuple<int,int> KM2::odometry() const
 {
     int32_t result[2] {0 , 0};
 
-    if (!bus->read(chipAddress, +Km2::Reg::ODOMETRY, result, 2, true))
+    if (!bus_.read(chipAddress_, +Km2::Reg::ODOMETRY, result, 2, Endian::Little))
         throw km2_error();
 
     return std::tie(result[0], result[1]);
@@ -61,6 +76,6 @@ void KM2::setAddress(int newaddr, bool bcast) const
     if (bcast)
         addr |= Km2::CFGADDR::BCASTEN;
 
-    if (!bus->write(chipAddress, +Km2::Reg::CFGADDR, addr, true))
+    if (!bus_.write(chipAddress_, +Km2::Reg::CFGADDR, addr, Endian::Little))
         throw km2_error();
 }

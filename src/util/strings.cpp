@@ -1,10 +1,11 @@
-#include <roboutils/strings.h>
+#include "roboutils/util/strings.h"
 
 #include <sstream>
 
 using namespace RoboUtils;
 
-std::vector<std::string> RoboUtils::split(const std::string& text, char delim) {
+std::vector<std::string> RoboUtils::split(const std::string& text, char delim)
+{
     std::string line;
     std::vector<std::string> vec;
     std::stringstream ss(text);
@@ -22,7 +23,7 @@ std::string RoboUtils::join(const std::vector<std::string>& data, const std::str
 
     result.reserve(data.size() * 12); // 12 chars per single data on average
 
-    for (auto i : data) {
+    for (const auto &i : data) {
         result.append(d);
         result.append(i);
         d = delim;

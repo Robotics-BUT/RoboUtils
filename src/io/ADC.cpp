@@ -25,24 +25,85 @@ SOFTWARE.
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
 
-ADC::ADC(I2C *i2c)
+ADC::ADC(const I2C &i2c)
+ : i2c_(i2c), chipAddress_(ADDR_AD799X_0_L)
 {
-    this->i2c = i2c;
-    chipAddress = ADDR_AD799X_0_L;
 }
 
-uint16_t ADC::readChannel(uint8_t channel)
+ADC::operator bool() const
 {
+    uint8_t reg;
+    return i2c_.read(chipAddress_, +Ad799X::Reg::CONFIG, &reg);
+}
 
-    uint16_t channelAndValue;
-    if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &channelAndValue, false))
+const I2C &ADC::bus() const
+{
+    return i2c_;
+}
+
+int ADC::chip() const
+{
+    return chipAddress_;
+}
+
+// mode 2
+std::map<int, uint16_t> ADC::Mode2Measure(int channel)
+{
+    uint16_t reg;
+    if (!i2c_.read(chipAddress_, Ad799X::RESULT::Reg(channel), &reg, Endian::Big))
         throw adc_error();
 
-    uint16_t readChannel = Ad799X::RESULT::FromCHAN(channelAndValue);
+    return { {
+        Ad799X::RESULT::FromCHAN(reg),
+        Ad799X::RESULT::FromVALUE(reg) }
+    };
+}
 
-    // FIXME test if actually true
-    if (readChannel != channel)
-        throw std::logic_error("ADC: received result channel is not equal to requested channel");
+std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
+{
+    std::map<int, uint16_t> map;
 
-    return Ad799X::RESULT::FromVALUE(channelAndValue );
+#if 1
+    uint16_t reg;
+
+    for (auto channel : channels) {
+
+        if (!i2c_.read(chipAddress_, Ad799X::RESULT::Reg(channel), &reg, Endian::Big))
+            throw adc_error();
+
+        map.insert({
+               Ad799X::RESULT::FromCHAN(reg),
+               Ad799X::RESULT::FromVALUE(reg)
+       });
+    }
+
+#else
+    // FIXME nasledujici kod by mel fungovat na dva i2c trnsacty dle DS ale nejede. Zrejme nepublikovana errata
+
+    std::vector<uint16_t> data(channels.size(), 0);
+    uint16_t cfg = 0;//Ad799X::CONFIG::FLTR;
+
+    for (auto channel : channels)
+        cfg |= Ad799X::CONFIG::ToCh(channel);
+
+    if (!i2c_.write(chipAddress_, +Ad799X::Reg::CONFIG, cfg, false))
+        throw adc_error();
+
+    if (!i2c_.read(chipAddress_, +Ad799X::Reg::RESULT_SEQ, data.data(), (int)data.size(), false))
+        throw adc_error();
+
+    for (auto i : data)
+        map.insert({
+            Ad799X::RESULT::FromCHAN(i),
+            Ad799X::RESULT::FromVALUE(i)
+        });
+#endif
+
+    return map;
+}
+
+void ADC::setCycleMode(int divisor)
+{
+    if (!i2c_.write(chipAddress_, +Ad799X::Reg::CYCLE, (uint8_t)divisor, Endian::Big))
+        throw adc_error();
 }

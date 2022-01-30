@@ -180,18 +180,26 @@ namespace RoboUtils::Chips::Ad799X {
 
     namespace CONFIG {
 
-// generic for group A, C, D*
-#define AD799X_CONFIG_CH(ch)               (1 << ((ch)+4))
-#define AD799X_CONFIG_CH_ALL               (0xFF << 4)
-#define AD799X_CONFIG_FLTR                 (1 << 3)
-#define AD799X_CONFIG_ALERTPIN             (3 << 1)
-#define AD799X_CONFIG_ALERTPIN_DISABLED    (0 << 1)
-#define AD799X_CONFIG_ALERTPIN_BUSY        (1 << 1)
-#define AD799X_CONFIG_ALERTPIN_ALERT       (2 << 1)
-#define AD799X_CONFIG_ALERTPIN_RESET       (3 << 1)
-#define AD799X_CONFIG_ALERTPOL             (1 << 0)
-#define AD799X_CONFIG_ALERTPOL_LOW         (0 << 0)
-#define AD799X_CONFIG_ALERTPOL_HIGH        (1 << 0)
+        static constexpr uint16_t ToCh(int ch) {
+            return 1 << (ch + 4);
+        }
+
+        // generic for group A, C, D*
+        enum : uint16_t {
+            ALERTPOL = 1 << 0,
+            ALERTBUSY = 1 << 1,
+            ALERTEN = 1 << 2,
+            FLTR = 1 << 3,
+            CH1 = ToCh(0),
+            CH2 = ToCh(1),
+            CH3 = ToCh(2),
+            CH4 = ToCh(3),
+            CH5 = ToCh(4),
+            CH6 = ToCh(5),
+            CH7 = ToCh(6),
+            CH8 = ToCh(7),
+            CH = 0xFF << 4,
+        };
 
 // group B only
 #define AD7991_CONFIG_CH(ch)               (1 << ((ch)+4))

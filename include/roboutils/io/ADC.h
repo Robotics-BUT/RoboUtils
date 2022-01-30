@@ -21,18 +21,51 @@ SOFTWARE.
 
 #include <roboutils/io/I2C.h>
 
+#include <vector>
+#include <map>
+
 namespace RoboUtils::IO {
 
     class ADC {
     public:
-        explicit ADC(I2C *i2c);
+        explicit ADC(const I2C &i2c);
 
-        uint16_t readChannel(uint8_t channel);
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if chip is already present
+        operator bool() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Associated bus
+        ///
+        /// \return the associated bus
+        const I2C &bus() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Chip address
+        ///
+        /// \return the current chip address
+        int chip() const;
+
+        /// \brief Measure single value on ADC channel
+        ///
+        /// \param channel the channel number (0-7)
+        /// \return the map with measured value
+        std::map<int, uint16_t> Mode2Measure(int channel);
+
+        /// \brief Measure multiple values on multiple channels
+        ///
+        /// \param channels all channels to be measured
+        /// \return the map set up with measured values
+        std::map<int, uint16_t> Mode2Measure(const std::vector<int>& channels);
+
+        void setCycleMode(int divisor);
 
     private:
-        I2C *i2c;
+        const I2C &i2c_;
 
-        int chipAddress;
+        const int chipAddress_;
     };
 
     class adc_error : public std::logic_error {
