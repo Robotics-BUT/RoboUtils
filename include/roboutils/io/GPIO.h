@@ -29,8 +29,10 @@ namespace RoboUtils::IO {
     /// \code
     ///  auto RUN = Pin::PA7;
     ///
-    ///  I2C bus{"/dev/i2c-1"};
-    ///  GPIO gpio{ &bus };
+    ///  I2C bus;
+    ///  GPIO gpio{bus};
+    ///
+    ///  bus.open("/dev/i2c-1");
     ///
     ///  gpio.output(Pin::PA1 | Pin::PA2 | Pin::PA3);        // set PA1...PA3 to output
     ///  gpio.input(RUN | Pin::PA6, true);                   // set pins PA7 and PA6 to input with pullup
@@ -59,6 +61,18 @@ namespace RoboUtils::IO {
         ///
         /// \return true, if bus is correctly opened
         operator bool() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Associated bus
+        ///
+        /// \return the associated bus
+        const I2C &bus() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Chip address
+        ///
+        /// \return the current chip address
+        int chip() const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Set selected pins to input mode

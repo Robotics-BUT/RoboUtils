@@ -33,6 +33,18 @@ namespace RoboUtils::IO {
         /// \return true, if bus is correctly opened
         operator bool() const;
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Associated bus
+        ///
+        /// \return the associated bus
+        const I2C &bus() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Chip address
+        ///
+        /// \return the current chip address
+        int chip() const;
+
         /// \brief Set desired speed for both of the motors
         ///
         /// \param left left motor speed

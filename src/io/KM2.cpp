@@ -34,6 +34,16 @@ KM2::operator bool() const
     return bus_;
 }
 
+const I2C &KM2::bus() const
+{
+    return bus_;
+}
+
+int KM2::chip() const
+{
+    return chipAddress_;
+}
+
 void KM2::drive(int left, int right) const
 {
     int16_t speed[2] {(int16_t)left,(int16_t)right};

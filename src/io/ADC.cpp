@@ -35,6 +35,16 @@ ADC::operator bool() const
     return i2c_;
 }
 
+const I2C &ADC::bus() const
+{
+    return i2c_;
+}
+
+int ADC::chip() const
+{
+    return chipAddress_;
+}
+
 // mode 2
 std::map<int, uint16_t> ADC::Mode2Measure(int channel)
 {
