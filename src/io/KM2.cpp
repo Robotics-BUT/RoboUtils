@@ -31,7 +31,8 @@ KM2::KM2(const I2C &aBus, int aChipAddress)
 
 KM2::operator bool() const
 {
-    return bus_;
+    uint8_t reg;
+    return bus_.read(chipAddress_, +Km2::Reg::SPEED, &reg);
 }
 
 const I2C &KM2::bus() const

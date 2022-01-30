@@ -59,7 +59,7 @@ namespace RoboUtils::IO {
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief operator that informs if bus is already opened
         ///
-        /// \return true, if bus is correctly opened
+        /// \return true, if chip is already present
         operator bool() const;
 
         ///-------------------------------------------------------------------------------------------------------------

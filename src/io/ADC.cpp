@@ -32,7 +32,8 @@ ADC::ADC(const I2C &i2c)
 
 ADC::operator bool() const
 {
-    return i2c_;
+    uint8_t reg;
+    return i2c_.read(chipAddress_, +Ad799X::Reg::CONFIG, &reg);
 }
 
 const I2C &ADC::bus() const

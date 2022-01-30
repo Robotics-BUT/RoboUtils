@@ -33,7 +33,8 @@ GPIO::GPIO(const I2C &i2c, int chipIndex)
 
 GPIO::operator bool() const
 {
-    return i2c_;
+    uint8_t reg;
+    return i2c_.read(chipAddress_, +Mcp23017::Reg::IODIR, &reg);
 }
 
 const I2C &GPIO::bus() const
