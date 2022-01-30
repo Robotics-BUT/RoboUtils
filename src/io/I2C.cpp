@@ -42,52 +42,66 @@ I2C::~I2C()
     }
 }
 
-void I2C::open(const std::string &busFile)
+I2C::operator bool() const
+{
+    return i2cDescriptor > 0;
+}
+
+bool I2C::open(const std::string &busFile)
 {
     if (i2cDescriptor > 0) {
         close(i2cDescriptor);
         i2cDescriptor = 0;
     }
-    i2cDescriptor = ::open(busFile.c_str(), O_RDWR);
-    if (i2cDescriptor <= 0)
-        throw i2c_error();
+
+    bus_ = busFile;
+    if (bus_.empty())
+        return false;
+
+    i2cDescriptor = ::open(bus_.c_str(), O_RDWR);
+    return i2cDescriptor > 0;
+}
+
+std::string I2C::bus() const
+{
+    return bus_;
 }
 
 template <typename T>
-bool I2C::write(const int chipAddress, const int registerAddress, const T value, bool littleEndian) const
+bool I2C::write(const int chipAddress, const int registerAddress, const T value, Endian endian) const
 {
-    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T), 1, littleEndian);
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(&value), sizeof(T), 1, endian);
 }
 
 template <typename T>
-bool I2C::write(const int chipAddress, const int registerAddress, const T* array, const int count, bool littleEndian) const
+bool I2C::write(const int chipAddress, const int registerAddress, const T* array, const int count, Endian endian) const
 {
-    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count, littleEndian);
+    return write_(chipAddress, registerAddress, reinterpret_cast<const uint8_t *>(array), sizeof(T), count, endian);
 }
 
 template <typename T>
-bool I2C::read(const int chipAddress, const int registerAddress, T* value, bool littleEndian) const
+bool I2C::read(const int chipAddress, const int registerAddress, T* value, Endian endian) const
 {
-    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T), 1, littleEndian);
+    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(value), sizeof(T), 1, endian);
 }
 
 template <typename T>
-bool I2C::read(const int chipAddress, const int registerAddress, T* array, const int count, bool littleEndian) const
+bool I2C::read(const int chipAddress, const int registerAddress, T* array, const int count, Endian endian) const
 {
-    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count, littleEndian);
+    return read_(chipAddress, registerAddress, reinterpret_cast<uint8_t *>(array), sizeof(T), count, endian);
 }
 
 template<typename T>
-bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clearBits, T toggleBits, bool littleEncian) const
+bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clearBits, T toggleBits, Endian endian) const
 {
     T value;
 
-    if (!read(chipAddress, registerAddress, &value, littleEncian))
+    if (!read(chipAddress, registerAddress, &value, endian))
         return false;
 
     value = ((value & ~clearBits) | setBits) ^ toggleBits;
 
-    return write(chipAddress, registerAddress, value, littleEncian);
+    return write(chipAddress, registerAddress, value, endian);
 }
 
 
@@ -145,12 +159,12 @@ bool I2C::transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const
     return true;
 }
 
-bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size, bool litleEndian  ) const
+bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size, Endian endian) const
 {
     std::vector<uint8_t> buff(1+size * typeSize);
     buff[0] = registerAddress;
 
-    if (litleEndian) {
+    if (endian == Endian::Little) {
 
         for (int i = 0 ; i < size * typeSize ; ++i)
             buff[i+1] = data[i];
@@ -168,7 +182,7 @@ bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int
 }
 
 
-bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size, bool litleEndian  ) const
+bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSize, int size, Endian endian) const
 {
     std::vector<uint8_t> buff(size * typeSize);
 
@@ -177,7 +191,7 @@ bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSi
     if (!transact_(chipAddress, buff.data(), 1 , buff.data(), (int)buff.size()))
         return false;
 
-    if (litleEndian) {
+    if (endian == Endian::Little) {
 
         for (int i = 0; i < size * typeSize; ++i)
             data[i] = buff[i];
@@ -197,64 +211,64 @@ bool I2C::read_(int chipAddress, int registerAddress,  uint8_t *data, int typeSi
 //----------------------------------------------------------------------------------------------------------------------
 // INSTANTIATION
 
-template bool I2C::write(int chipAddress, int registerAddress, uint8_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, uint16_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, uint32_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, uint64_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, int8_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, int16_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, int32_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, int64_t val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, float val, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, double val, bool littleEndian) const;
+template bool I2C::write(int chipAddress, int registerAddress, uint8_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, uint16_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, uint32_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, uint64_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, int8_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, int16_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, int32_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, int64_t val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, float val, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, double val, Endian endian) const;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-template bool I2C::write(int chipAddress, int registerAddress, const uint8_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const uint16_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const uint32_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const uint64_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const int8_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const int16_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const int32_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const int64_t *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const float *val, const int count, bool littleEndian) const;
-template bool I2C::write(int chipAddress, int registerAddress, const double *val, const int count, bool littleEndian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const uint8_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const uint16_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const uint32_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const uint64_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const int8_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const int16_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const int32_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const int64_t *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const float *val, const int count, Endian endian) const;
+template bool I2C::write(int chipAddress, int registerAddress, const double *val, const int count, Endian endian) const;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-template bool I2C::read(int chipAddress, int registerAddress, uint8_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint16_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint32_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint64_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int8_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int16_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int32_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int64_t* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, float* val, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, double* val, bool littleEndian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint8_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint16_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint32_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint64_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int8_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int16_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int32_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int64_t* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, float* val, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, double* val, Endian endian) const;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-template bool I2C::read(int chipAddress, int registerAddress, uint8_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint16_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint32_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, uint64_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int8_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int16_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int32_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, int64_t* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, float* array, const int count, bool littleEndian) const;
-template bool I2C::read(int chipAddress, int registerAddress, double* array, const int count, bool littleEndian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint8_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint16_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint32_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, uint64_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int8_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int16_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int32_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, int64_t* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, float* array, const int count, Endian endian) const;
+template bool I2C::read(int chipAddress, int registerAddress, double* array, const int count, Endian endian) const;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint8_t setBits, uint8_t clearBits, uint8_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint16_t setBits, uint16_t clearBits, uint16_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint32_t setBits, uint32_t clearBits, uint32_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint64_t setBits, uint64_t clearBits, uint64_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int8_t setBits, int8_t clearBits, int8_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int16_t setBits, int16_t clearBits, int16_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int32_t setBits, int32_t clearBits, int32_t toggleBits, bool littleEndian) const;
-template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int64_t setBits, int64_t clearBits, int64_t toggleBits, bool littleEndian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint8_t setBits, uint8_t clearBits, uint8_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint16_t setBits, uint16_t clearBits, uint16_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint32_t setBits, uint32_t clearBits, uint32_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, uint64_t setBits, uint64_t clearBits, uint64_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int8_t setBits, int8_t clearBits, int8_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int16_t setBits, int16_t clearBits, int16_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int32_t setBits, int32_t clearBits, int32_t toggleBits, Endian endian) const;
+template bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, int64_t setBits, int64_t clearBits, int64_t toggleBits, Endian endian) const;
 // float a double nedavaji smysl

@@ -25,17 +25,21 @@ SOFTWARE.
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
 
-ADC::ADC(I2C *i2c)
+ADC::ADC(const I2C &i2c)
+ : i2c_(i2c), chipAddress_(ADDR_AD799X_0_L)
 {
-    this->i2c = i2c;
-    chipAddress = ADDR_AD799X_0_L;
+}
+
+ADC::operator bool() const
+{
+    return i2c_;
 }
 
 // mode 2
 std::map<int, uint16_t> ADC::Mode2Measure(int channel)
 {
     uint16_t reg;
-    if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &reg, false))
+    if (!i2c_.read(chipAddress_, Ad799X::RESULT::Reg(channel), &reg, Endian::Big))
         throw adc_error();
 
     return { {
@@ -53,7 +57,7 @@ std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
 
     for (auto channel : channels) {
 
-        if (!i2c->read(chipAddress, Ad799X::RESULT::Reg(channel), &reg, false))
+        if (!i2c_.read(chipAddress_, Ad799X::RESULT::Reg(channel), &reg, Endian::Big))
             throw adc_error();
 
         map.insert({
@@ -71,10 +75,10 @@ std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
     for (auto channel : channels)
         cfg |= Ad799X::CONFIG::ToCh(channel);
 
-    if (!i2c->write(chipAddress, +Ad799X::Reg::CONFIG, cfg, false))
+    if (!i2c_.write(chipAddress_, +Ad799X::Reg::CONFIG, cfg, false))
         throw adc_error();
 
-    if (!i2c->read(chipAddress, +Ad799X::Reg::RESULT_SEQ, data.data(), (int)data.size(), false))
+    if (!i2c_.read(chipAddress_, +Ad799X::Reg::RESULT_SEQ, data.data(), (int)data.size(), false))
         throw adc_error();
 
     for (auto i : data)
@@ -89,6 +93,6 @@ std::map<int, uint16_t> ADC::Mode2Measure(const std::vector<int>& channels)
 
 void ADC::setCycleMode(int divisor)
 {
-    if (!i2c->write(chipAddress, +Ad799X::Reg::CYCLE, (uint8_t)divisor, false))
+    if (!i2c_.write(chipAddress_, +Ad799X::Reg::CYCLE, (uint8_t)divisor, Endian::Big))
         throw adc_error();
 }

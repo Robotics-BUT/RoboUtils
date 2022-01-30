@@ -28,7 +28,13 @@ namespace RoboUtils::IO {
 
     class ADC {
     public:
-        explicit ADC(I2C *i2c);
+        explicit ADC(const I2C &i2c);
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if bus is correctly opened
+        operator bool() const;
 
         /// \brief Measure single value on ADC channel
         ///
@@ -45,9 +51,9 @@ namespace RoboUtils::IO {
         void setCycleMode(int divisor);
 
     private:
-        I2C *i2c;
+        const I2C &i2c_;
 
-        int chipAddress;
+        const int chipAddress_;
     };
 
     class adc_error : public std::logic_error {

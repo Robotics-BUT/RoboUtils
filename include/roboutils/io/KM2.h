@@ -25,7 +25,13 @@ namespace RoboUtils::IO {
 
     class KM2 {
     public:
-        explicit KM2(I2C *aBus, int aChipAddress = 0x71);
+        explicit KM2(const I2C &aBus, int aChipAddress = 0x71);
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if bus is correctly opened
+        operator bool() const;
 
         /// \brief Set desired speed for both of the motors
         ///
@@ -56,9 +62,9 @@ namespace RoboUtils::IO {
         void setAddress(int newaddr, bool bcast) const;
 
     private:
-        I2C *bus;
+        const I2C &bus_;
 
-        int chipAddress;
+        const int chipAddress_;
     };
 
     class km2_error : public std::logic_error {
