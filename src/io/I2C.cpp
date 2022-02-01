@@ -22,6 +22,7 @@ SOFTWARE.
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h> // ioctl
+#include <linux/i2c.h>
 #include <fcntl.h> // O_RDWR
 #include <unistd.h>  // open, close
 
@@ -112,51 +113,40 @@ bool I2C::update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clea
 //#define LOG // TODO log later using matous's engine
 bool I2C::transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const
 {
-    std::lock_guard <std::mutex> lock(mutex);
+  std::lock_guard <std::mutex> lock(mutex);
 
-    if (i2cDescriptor < 0)
-        throw i2c_error();
+  if (i2cDescriptor < 0)
+    throw i2c_error();
 
-#ifdef LOG
-    printf( "I2C: @%02x TRANSN W %d R %d ", addr, wn, rn);
-    if (wn > 0) {
-        printf("[ ");
-        for (int i = 0 ; i < wn ; ++i)
-            printf("%02x ", w[i]);
-        printf("] ");
-    }
-#endif
+  if (wn && rn) {
 
-    if (ioctl(i2cDescriptor, I2C_SLAVE, addr))
-        throw i2c_error();
+    i2c_msg messages[2] = {
+            {static_cast<uint16_t>(addr), 0,        static_cast<uint16_t>(wn), w},
+            {static_cast<uint16_t>(addr), I2C_M_RD, static_cast<uint16_t>(rn), r}
+    };
 
-    if (wn > 0) {
-        int err = ::write(i2cDescriptor, w, wn);
+    i2c_rdwr_ioctl_data command = {messages, 2};
+    return ::ioctl(i2cDescriptor, I2C_RDWR, &command) > 0;
 
+  } else if (wn) {
+    i2c_msg messages[1] = {
+            {static_cast<uint16_t>(addr), 0,        static_cast<uint16_t>(wn), w},
+    };
 
-#ifdef LOG
-        printf("(%d written) ", err);
-#endif
-        if (err != wn)
-            return false;
-    }
+    i2c_rdwr_ioctl_data command = {messages, 1};
+    return ::ioctl(i2cDescriptor, I2C_RDWR, &command) > 0;
 
-    if (rn > 0) {
-        int err = ::read(i2cDescriptor, r, rn);
+  } else if (rn) {
 
-#ifdef LOG
-        printf("(%d readed) [ ", err);
-        for (int i = 0 ; i < rn ; ++i)
-            printf("%2x ", r[i]);
-        printf("]\n");
-#endif
-        return err == rn;
-    }
+    i2c_msg messages[1] = {
+            {static_cast<uint16_t>(addr), I2C_M_RD, static_cast<uint16_t>(rn), r}
+    };
 
-#ifdef LOG
-    printf("\n");
-#endif
-    return true;
+    i2c_rdwr_ioctl_data command = {messages, 1};
+    return ::ioctl(i2cDescriptor, I2C_RDWR, &command) > 0;
+  }
+
+  return false;
 }
 
 bool I2C::write_(int chipAddress, int registerAddress,  const uint8_t *data, int typeSize, int size, Endian endian) const
