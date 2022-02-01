@@ -75,6 +75,12 @@ namespace RoboUtils::IO {
         int chip() const;
 
         ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Set chip address (late initialization)
+        ///
+        /// \param address the desired chip address
+        void set_chip(int address);
+
+        ///-------------------------------------------------------------------------------------------------------------
         /// \brief Set selected pins to input mode
         ///
         /// \param pins
@@ -132,7 +138,7 @@ namespace RoboUtils::IO {
         const I2C &i2c_;
 
         /// original chip address
-        const int chipAddress_;
+        int chipAddress_;
     };
 
     class gpio_error : public std::logic_error {

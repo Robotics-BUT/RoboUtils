@@ -47,6 +47,11 @@ int GPIO::chip() const
     return chipAddress_;
 }
 
+void GPIO::set_chip(int address)
+{
+  chipAddress_ = address;
+}
+
 void GPIO::input(uint16_t pins, bool pullup) const
 {
     if (!i2c_.update<uint16_t>(chipAddress_, +Mcp23017::Reg::IODIR, pins, 0, 0,Endian::Little))
