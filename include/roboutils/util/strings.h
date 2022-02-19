@@ -29,4 +29,8 @@ namespace RoboUtils {
     /// \return joined vector of string
     std::string join(const std::vector<std::string>& data, const std::string& delim);
 
+    std::string join(const std::vector<std::string>::iterator & begin, const std::vector<std::string>::iterator & end, const std::string& delim);
+
+    std::string to_fixed(double d, int decimals);
+
 }
