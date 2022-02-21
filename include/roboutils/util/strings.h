@@ -33,4 +33,7 @@ namespace RoboUtils {
 
     std::string to_fixed(double d, int decimals);
 
+    void eraseBefore(std::string &s, char c);
+    void eraseBefore(std::string &s, const std::string &c);
+
 }

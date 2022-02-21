@@ -60,3 +60,17 @@ std::string RoboUtils::to_fixed(double d, int decimals)
   results << std::fixed << std::setprecision(decimals) << d;
   return results.str();
 }
+
+void RoboUtils::eraseBefore(std::string &s, char c)
+{
+  auto pos = s.find(c);
+  if (pos > 0)
+    s.erase(0, pos);
+}
+
+void RoboUtils::eraseBefore(std::string &s, const std::string &c)
+{
+  auto pos = s.find(c);
+  if (pos > 0)
+    s.erase(0, pos);
+}
