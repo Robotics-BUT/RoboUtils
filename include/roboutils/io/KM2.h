@@ -25,20 +25,58 @@ namespace RoboUtils::IO {
 
     class KM2 {
     public:
-        explicit KM2(I2C *aBus, int aChipAddress = 0x71);
+        explicit KM2(const I2C &aBus, int aChipAddress = 0x71);
 
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if chip is already present
+        operator bool() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Associated bus
+        ///
+        /// \return the associated bus
+        const I2C &bus() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief Chip address
+        ///
+        /// \return the current chip address
+        int chip() const;
+
+        /// \brief Set desired speed for both of the motors
+        ///
+        /// \param left left motor speed
+        /// \param right right motor speed
         void drive(int left, int right) const;
 
+        /// \brief Ask for odometry
+        ///
+        /// \code
+        ///   auto [ left, right ] = odo();
+        /// \endcode
+        ///
+        /// \return current odometry measurement
         std::tuple<int,int> odometry() const;
 
+        /// \brief Set desired speed for both of the motors and ask for odometry
+        ///
+        /// \code
+        ///   auto [ left, right ] = driveodo(3,5);
+        /// \endcode
+        ///
+        /// \param left left motor speed
+        /// \param right right motor speed
+        /// \return current odometry measurement
         std::tuple<int,int> driveodo(int left, int right) const;
 
         void setAddress(int newaddr, bool bcast) const;
 
     private:
-        I2C *bus;
+        const I2C &bus_;
 
-        int chipAddress;
+        const int chipAddress_;
     };
 
     class km2_error : public std::logic_error {

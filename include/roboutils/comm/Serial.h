@@ -19,7 +19,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 SOFTWARE.
 */
 
-
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -27,53 +26,35 @@ SOFTWARE.
 
 namespace RoboUtils::COMM {
 
-    class UDP {
+    class Serial {
     public:
-        /// \brief Create the UDP object
-        UDP();
+        ~Serial();
 
-        /// \brief Destroy the UDP object
-        ~UDP();
+        void open(const std::string &file);
 
-        /// \brief Bind to specified UDP port
-        ///
-        /// \param port the port to bind to (default is automatic)
-        void bind(uint16_t port = 0);
+        void configure();
 
-        /// \brief Send data to specified host
-        ///
-        /// \param host the host identification ip/port
-        /// \param buffer the data to send
-        /// \param size size of data to send
-        void send(const std::string &host, const uint8_t *buffer, std::size_t size) const;
+        void send(const uint8_t *buffer, std::size_t size) const;
 
         /// \brief Send text data to specified host
         ///
-        /// \param host the host identification ip/port
         /// \param data text to be sent
-        void sendStr(const std::string &host, const std::string &data) const
-        {
-            send(host, reinterpret_cast<const uint8_t*>(data.c_str()), data.length());
+        void sendStr(const std::string &data) const {
+          send(reinterpret_cast<const uint8_t *>(data.c_str()), data.length());
         }
 
-        /// \brief Return if any packet is waiting for receive
+        /// \brief Receive data
         ///
-        /// \return true, if there is waiting packet to receive
-        bool available() const;
+        /// \return data
+        std::vector<uint8_t> receive() const;
 
-        /// \brief Receive data from remote
+        /// \brief Receive text
         ///
-        /// \return auto [remote, data]
-        std::tuple<std::string, std::vector<uint8_t>> receive() const;
-
-        /// \brief Receive text from remote
-        ///
-        /// \return auto [remote, text]
-        std::tuple<std::string, std::string> receiveStr() const;
-
-        bool bound{false};
+        /// \return auto text
+        std::string receiveStr() const;
 
     private:
-        int socketDescriptor = 0;
+        int fileDescriptor = 0;
     };
+
 }

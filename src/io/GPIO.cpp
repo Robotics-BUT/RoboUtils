@@ -26,55 +26,75 @@ SOFTWARE.
 using namespace RoboUtils::IO;
 using namespace RoboUtils::Chips;
 
-GPIO::GPIO(I2C *i2c, int chipIndex)
+GPIO::GPIO(const I2C &i2c, int chipIndex)
+  : i2c_(i2c), chipAddress_(Mcp23017::Addr(chipIndex))
 {
-    this->i2c = i2c;
-    chipAddress = Mcp23017::Addr(chipIndex);
+}
+
+GPIO::operator bool() const
+{
+    uint8_t reg;
+    return i2c_.read(chipAddress_, +Mcp23017::Reg::IODIR, &reg);
+}
+
+const I2C &GPIO::bus() const
+{
+    return i2c_;
+}
+
+int GPIO::chip() const
+{
+    return chipAddress_;
+}
+
+void GPIO::set_chip(int address)
+{
+  chipAddress_ = address;
 }
 
 void GPIO::input(uint16_t pins, bool pullup) const
 {
-    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::IODIR, pins, 0, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_, +Mcp23017::Reg::IODIR, pins, 0, 0,Endian::Little))
         throw gpio_error();
 
-    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::GPPU, pullup ? pins : 0, pullup ? 0 : pins, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_, +Mcp23017::Reg::GPPU, pullup ? pins : 0, pullup ? 0 : pins, 0,Endian::Little))
         throw gpio_error();
 }
 
 void GPIO::output(uint16_t pins) const
 {
-    if (!i2c->update<uint16_t>(chipAddress, +Mcp23017::Reg::IODIR, 0, pins, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_, +Mcp23017::Reg::IODIR, 0, pins, 0,Endian::Little))
         throw gpio_error();
 }
 
 void GPIO::set(uint16_t pins, bool value) const
 {
-    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, value ? 0 : pins, value ? pins : 0, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_,  +Mcp23017::Reg::OLAT, value ? 0 : pins, value ? pins : 0, 0, Endian::Little))
         throw gpio_error();
 }
 
 void GPIO::low(uint16_t pins) const
 {
-    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, pins, 0, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_,  +Mcp23017::Reg::OLAT, pins, 0, 0, Endian::Little))
         throw gpio_error();
 }
 
 void GPIO::high(uint16_t pins) const
 {
-    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, 0, pins, 0, true))
+    if (!i2c_.update<uint16_t>(chipAddress_,  +Mcp23017::Reg::OLAT, 0, pins, 0, Endian::Little))
         throw gpio_error();
 }
 
 void GPIO::toggle(uint16_t pins) const
 {
-    if (!i2c->update<uint16_t>(chipAddress,  +Mcp23017::Reg::OLAT, 0, 0, pins, true))
+    if (!i2c_.update<uint16_t>(chipAddress_,  +Mcp23017::Reg::OLAT, 0, 0, pins, Endian::Little))
         throw gpio_error();
 }
 
 bool GPIO::get(uint16_t pins) const
 {
     uint16_t p = 0;
-    if (!i2c->read(chipAddress, +Mcp23017::Reg::GPIO, &p, true))
+    if (!i2c_.read(chipAddress_, +Mcp23017::Reg::GPIO, &p, Endian::Little))
         throw gpio_error();
 
     return (pins & p) != 0;
@@ -83,7 +103,7 @@ bool GPIO::get(uint16_t pins) const
 uint16_t GPIO::read(uint16_t pins) const
 {
     uint16_t p = 0;
-    if (!i2c->read(chipAddress, +Mcp23017::Reg::GPIO, &p, true))
+    if (!i2c_.read(chipAddress_, +Mcp23017::Reg::GPIO, &p, Endian::Little))
         throw gpio_error();
 
     return p & pins;

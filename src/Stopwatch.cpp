@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 #include "roboutils/Stopwatch.h"
-#include "roboutils/utils.h"
+#include "roboutils/util/timing.h"
 
 using namespace RoboUtils;
 using namespace std;

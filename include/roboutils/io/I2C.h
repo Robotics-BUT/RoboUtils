@@ -28,20 +28,36 @@ SOFTWARE.
 #include <cstdint>
 
 namespace RoboUtils::IO {
+    enum class Endian {
+        Little,
+        Big
+    };
+
     class I2C {
     public:
-
-        ///-------------------------------------------------------------------------------------------------------------
-        /// \brief construct the bus accessor
-        ///
-        /// \param busFile filename of the linux bus driver
-        explicit I2C(const std::string &busFile = "/dev/i2c-1");
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief destructor of the bus accessor
         ///
         /// this destructs all system resources
         ~I2C();
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief operator that informs if bus is already opened
+        ///
+        /// \return true, if bus is correctly opened
+        operator bool() const;
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief open the specified bus
+        ///
+        /// \param busFile filename of the linux bus driver
+        /// \return true if succeeded and bus is open
+        bool open(const std::string &busFile= "/dev/i2c-1");
+
+        ///-------------------------------------------------------------------------------------------------------------
+        /// \brief get current bus file
+        std::string bus() const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Write register value on the bus as LittleEndian
@@ -56,7 +72,7 @@ namespace RoboUtils::IO {
         /// \param value the value to be written
         /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        template<typename T> bool write(int chipAddress, int registerAddress, T value, bool littleEndian=true) const;
+        template<typename T> bool write(int chipAddress, int registerAddress, T value, Endian endian=Endian::Little) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Write an array of register values on the bus as LittleEndian
@@ -71,7 +87,7 @@ namespace RoboUtils::IO {
         /// \param array the array of values to be written
         /// \param count the array size
         /// \return true if there is no error during transfer
-        template<typename T> bool write(int chipAddress, int registerAddress, const T *array, int count, bool littleEndian=true) const;
+        template<typename T> bool write(int chipAddress, int registerAddress, const T *array, int count, Endian endian=Endian::Little) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Read register value from the bus as LittleEndian
@@ -85,7 +101,7 @@ namespace RoboUtils::IO {
         /// \param registerAddress the address of the register on the chip
         /// \param value the value will be filled wirh read data
         /// \return true if there is no error during transfer
-        template<typename T> bool read(int chipAddress, int registerAddress, T *value, bool littleEndian=true) const;
+        template<typename T> bool read(int chipAddress, int registerAddress, T *value, Endian endian=Endian::Little) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief Read array of register values from the bus as LittleEndian
@@ -100,15 +116,17 @@ namespace RoboUtils::IO {
         /// \param array the array of values to be filled with returned data
         /// \param count the array size
         /// \return true if there is no error during transfer
-        template<typename T> bool read(int chipAddress, int registerAddress, T *array, int count, bool littleEndian=true) const;
+        template<typename T> bool read(int chipAddress, int registerAddress, T *array, int count, Endian endian=Endian::Little) const;
 
 
         template<typename T>
-        bool update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clearBits, T toggleBits, bool littleEndian=true) const;
+        bool update(uint8_t chipAddress, uint8_t registerAddress, T setBits, T clearBits, T toggleBits, Endian endian=Endian::Little) const;
 
     private:
         /// the file descriptor
         int i2cDescriptor;
+
+        std::string bus_; // filename of bus
 
         /// the thread-guarding mutex
         mutable std::mutex mutex;
@@ -122,7 +140,7 @@ namespace RoboUtils::IO {
         /// \param r
         /// \param rn
         /// \return true if there is no error during transfer
-        bool transact_(int addr, uint8_t *w, uint32_t wn, uint8_t *r, uint32_t rn) const;
+        bool transact_(int addr, uint8_t *w, int wn, uint8_t *r, int rn) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief
@@ -134,7 +152,7 @@ namespace RoboUtils::IO {
         /// \param count the array size
         /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        bool write_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count, bool litleEndian) const;
+        bool write_(int chipAddress, int registerAddress,  const uint8_t *data, int size, int count, Endian endian=Endian::Little) const;
 
         ///-------------------------------------------------------------------------------------------------------------
         /// \brief
@@ -146,7 +164,7 @@ namespace RoboUtils::IO {
         /// \param count the array size
         /// \param littleEndian the endianity of he transaction
         /// \return true if there is no error during transfer
-        bool read_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count, bool litleEndian) const;
+        bool read_(int chipAddress, int registerAddress,  uint8_t *data, int size, int count, Endian endian=Endian::Little) const;
     };
 
     class i2c_error : public std::logic_error {

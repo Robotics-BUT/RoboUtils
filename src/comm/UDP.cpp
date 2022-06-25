@@ -3,7 +3,7 @@
 //
 
 #include <roboutils/comm/UDP.h>
-#include <roboutils/strings.h>
+#include "roboutils/util/strings.h"
 
 #include <algorithm>
 
@@ -88,7 +88,7 @@ void UDP::send(const std::string &host, const uint8_t *buffer, std::size_t size)
 
     SAHelper sa(host);
 
-    if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &sa.sa, sizeof(sa.sa)) != size)
+    if (sendto(socketDescriptor, buffer, size, 0, (struct sockaddr *) &sa.sa, sizeof(sa.sa)) != (ssize_t) size)
         throw std::logic_error("Failed to send UDP packet  ");
 }
 
@@ -118,6 +118,9 @@ std::tuple<std::string, std::vector<uint8_t>> UDP::receive() const
 {
     if (!bound)
         throw std::logic_error("UDP is not bound");
+
+    if (!available())
+        return {};
 
     SAHelper sa;
     unsigned int clientlen = sizeof(sa.sa);
